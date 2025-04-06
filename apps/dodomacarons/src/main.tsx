@@ -7,20 +7,30 @@ import { Provider } from 'react-redux';
 import { store } from './app/store';
 import { huHU as coreLocaleHU } from '@mui/material/locale';
 import { huHU as datePickersLocaleHU } from '@mui/x-date-pickers/locales';
+import { huHU as dataGridLocaleHU } from '@mui/x-data-grid/locales';
 import { createTheme, ThemeProvider } from '@mui/material';
+import { PersistGate } from 'redux-persist/es/integration/react';
+import { persistStore } from 'redux-persist';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-const theme = createTheme({}, datePickersLocaleHU, coreLocaleHU);
+const theme = createTheme(
+  {},
+  dataGridLocaleHU,
+  datePickersLocaleHU,
+  coreLocaleHU
+);
 
 root.render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="hu">
         <Provider store={store}>
-          <App />
+          <PersistGate persistor={persistStore(store)}>
+            <App />
+          </PersistGate>
         </Provider>
       </LocalizationProvider>
     </ThemeProvider>

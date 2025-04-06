@@ -1,10 +1,36 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import {
+  persistReducer,
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import { flavorSlice } from './flavor.slice';
+import { wasteSlice } from './waste.slice';
+
+const persistConfig = {
+  key: 'root',
+  storage,
+  whitelist: ['flavor', 'waste'],
+};
+
+const rootReducer = combineReducers({
+  [flavorSlice.name]: flavorSlice.reducer,
+  [wasteSlice.name]: wasteSlice.reducer,
+});
 
 export const store = configureStore({
-  reducer: {
-    [flavorSlice.name]: flavorSlice.reducer,
-  },
+  reducer: persistReducer(persistConfig, rootReducer),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

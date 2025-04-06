@@ -1,4 +1,4 @@
-import { ChangeEventHandler, forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { DateTime } from 'luxon';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { DatePicker } from '@mui/x-date-pickers';
@@ -10,8 +10,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   FormControl,
+  FormHelperText,
   FormLabel,
   IconButton,
   InputAdornment,
@@ -27,16 +27,22 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CloseIcon from '@mui/icons-material/Close';
 import { TransitionProps } from '@mui/material/transitions';
-import { WasteFieldValues } from './types';
-import { favors } from './favors';
 import { setSelectedFlavor } from './flavor.slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store';
+import { WasteFieldValues } from './types';
+import { favors } from './favors';
+import { addWaste } from './waste.slice';
+import { DataGrid } from '@mui/x-data-grid';
+import { v4 as uuid } from 'uuid';
+
+const DATE_STRING_FORMAT = 'yyyy-MM-dd';
+const REQUIRED_ERROR_TEXT = 'Mező kitöltése kötelező';
 
 const defaultValues: WasteFieldValues = {
-  manufacturingDate: null,
-  releaseDate: DateTime.local(),
-  displayDate: null,
+  manufacturingDate: '',
+  releaseDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
+  displayDate: '',
   flavor: '',
   releasedQuantity: 0,
   manufacturingWasteQuantity: 0,
@@ -62,15 +68,19 @@ export function WasteForm() {
 
   const methods = useForm<WasteFieldValues>({
     defaultValues,
+    reValidateMode: 'onChange',
   });
 
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = methods;
+  const { handleSubmit, formState } = methods;
 
   const onSubmit = (data: WasteFieldValues) => {
-    console.log(data);
+    dispatch(
+      addWaste({
+        id: uuid(),
+        createdAt: DateTime.local().toString(),
+        ...data,
+      })
+    );
   };
 
   const handleIncrement = (field: any, value: number) => {
@@ -78,7 +88,7 @@ export function WasteForm() {
   };
 
   const handleDecrement = (field: any, value: number) => {
-    if (value > 0) field.onChange(value - 1);
+    field.onChange(Math.max(0, value - 1));
   };
 
   const handleChange = (event: any) => {
@@ -110,9 +120,15 @@ export function WasteForm() {
     (state) => state.flavor.recentlyUsedFlavors
   );
 
+  const wasteList = useSelector<RootState, WasteFieldValues[]>(
+    (state) => state.waste.list
+  );
+
   useEffect(() => {
     if (selectedFlavor !== methods.getValues('flavor')) {
-      methods.setValue('flavor', selectedFlavor);
+      methods.setValue('flavor', selectedFlavor || '', {
+        shouldValidate: !!selectedFlavor,
+      });
     }
   }, [methods, selectedFlavor]);
 
@@ -127,6 +143,12 @@ export function WasteForm() {
             minHeight: '100vh',
             overflow: 'hidden',
             boxSizing: 'border-box',
+            '& .MuiFormHelperText-root': {
+              p: 0,
+              m: 0,
+              mt: 1,
+              width: '100%',
+            },
           }}
         >
           <Box>
@@ -137,7 +159,37 @@ export function WasteForm() {
               <Controller
                 name="releaseDate"
                 control={methods.control}
-                render={({ field }) => <DatePicker {...field} />}
+                rules={{
+                  required: REQUIRED_ERROR_TEXT,
+                }}
+                render={({ field, fieldState }) => (
+                  <DatePicker
+                    {...field}
+                    value={
+                      field.value
+                        ? DateTime.fromFormat(field.value, 'yyyy-MM-dd')
+                        : null
+                    }
+                    onChange={(date) => {
+                      if (date) {
+                        field.onChange(date.toFormat(DATE_STRING_FORMAT));
+                      } else {
+                        field.onChange(null);
+                      }
+                    }}
+                    closeOnSelect
+                    slotProps={{
+                      textField: {
+                        error: !!fieldState?.error,
+                        helperText: fieldState.error?.message && (
+                          <Alert severity="error">
+                            {fieldState.error.message}
+                          </Alert>
+                        ),
+                      },
+                    }}
+                  />
+                )}
               />
             </FormControl>
           </Box>
@@ -171,8 +223,22 @@ export function WasteForm() {
             <Controller
               name="flavor"
               control={methods.control}
-              render={({ field }) => (
-                <input {...field} type="hidden" value={selectedFlavor || ''} />
+              rules={{
+                required: REQUIRED_ERROR_TEXT,
+              }}
+              render={({ field, fieldState }) => (
+                <FormControl error={!!fieldState.error} fullWidth>
+                  <input
+                    {...field}
+                    type="hidden"
+                    value={selectedFlavor || ''}
+                  />
+                  <FormHelperText>
+                    {fieldState.error?.message && (
+                      <Alert severity="error">{fieldState.error.message}</Alert>
+                    )}
+                  </FormHelperText>
+                </FormControl>
               )}
             />
           </Box>
@@ -185,7 +251,37 @@ export function WasteForm() {
               <Controller
                 name="manufacturingDate"
                 control={methods.control}
-                render={({ field }) => <DatePicker {...field} closeOnSelect />}
+                rules={{
+                  required: REQUIRED_ERROR_TEXT,
+                }}
+                render={({ field, fieldState }) => (
+                  <DatePicker
+                    {...field}
+                    value={
+                      field.value
+                        ? DateTime.fromFormat(field.value, 'yyyy-MM-dd')
+                        : null
+                    }
+                    onChange={(date) => {
+                      if (date) {
+                        field.onChange(date.toFormat(DATE_STRING_FORMAT));
+                      } else {
+                        field.onChange(null);
+                      }
+                    }}
+                    closeOnSelect
+                    slotProps={{
+                      textField: {
+                        error: !!fieldState?.error,
+                        helperText: fieldState.error?.message && (
+                          <Alert severity="error">
+                            {fieldState.error.message}
+                          </Alert>
+                        ),
+                      },
+                    }}
+                  />
+                )}
               />
             </FormControl>
           </Box>
@@ -198,7 +294,37 @@ export function WasteForm() {
               <Controller
                 name="displayDate"
                 control={methods.control}
-                render={({ field }) => <DatePicker {...field} />}
+                rules={{
+                  required: REQUIRED_ERROR_TEXT,
+                }}
+                render={({ field, fieldState }) => (
+                  <DatePicker
+                    {...field}
+                    value={
+                      field.value
+                        ? DateTime.fromFormat(field.value, 'yyyy-MM-dd')
+                        : null
+                    }
+                    onChange={(date) => {
+                      if (date) {
+                        field.onChange(date.toFormat(DATE_STRING_FORMAT));
+                      } else {
+                        field.onChange(null);
+                      }
+                    }}
+                    closeOnSelect
+                    slotProps={{
+                      textField: {
+                        error: !!fieldState.error,
+                        helperText: fieldState.error?.message && (
+                          <Alert severity="error">
+                            {fieldState.error.message}
+                          </Alert>
+                        ),
+                      },
+                    }}
+                  />
+                )}
               />
             </FormControl>
           </Box>
@@ -211,10 +337,24 @@ export function WasteForm() {
               <Controller
                 name="releasedQuantity"
                 control={methods.control}
-                render={({ field }) => (
+                rules={{
+                  required: REQUIRED_ERROR_TEXT,
+                }}
+                render={({ field, fieldState }) => (
                   <TextField
-                    type="number"
                     {...field}
+                    value={parseInt(field.value.toString(), 10) || 0}
+                    onChange={(e) => {
+                      field.onChange?.(parseInt(e.target.value, 10) || 0);
+                    }}
+                    error={!!fieldState?.error}
+                    helperText={
+                      fieldState.error?.message && (
+                        <Alert severity="error">
+                          {fieldState.error.message}
+                        </Alert>
+                      )
+                    }
                     slotProps={{
                       input: {
                         startAdornment: (
@@ -268,10 +408,24 @@ export function WasteForm() {
               <Controller
                 name="manufacturingWasteQuantity"
                 control={methods.control}
-                render={({ field }) => (
+                rules={{
+                  required: REQUIRED_ERROR_TEXT,
+                }}
+                render={({ field, fieldState }) => (
                   <TextField
-                    type="number"
                     {...field}
+                    value={parseInt(field.value.toString(), 10) || 0}
+                    onChange={(e) => {
+                      field.onChange?.(parseInt(e.target.value, 10) || 0);
+                    }}
+                    error={!!fieldState?.error}
+                    helperText={
+                      fieldState.error?.message && (
+                        <Alert severity="error">
+                          {fieldState.error.message}
+                        </Alert>
+                      )
+                    }
                     slotProps={{
                       input: {
                         startAdornment: (
@@ -328,15 +482,23 @@ export function WasteForm() {
                 name="shippingWasteQuantity"
                 control={methods.control}
                 rules={{
-                  validate: {
-                    isNumber: (value) =>
-                      !isNaN(value) || 'Please enter a valid number', // Custom validation for numbers
-                  },
+                  required: REQUIRED_ERROR_TEXT,
                 }}
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <TextField
-                    type="number"
                     {...field}
+                    value={parseInt(field.value.toString(), 10) || 0}
+                    onChange={(e) => {
+                      field.onChange?.(parseInt(e.target.value, 10) || 0);
+                    }}
+                    error={!!fieldState?.error}
+                    helperText={
+                      fieldState.error?.message && (
+                        <Alert severity="error">
+                          {fieldState.error.message}
+                        </Alert>
+                      )
+                    }
                     slotProps={{
                       input: {
                         startAdornment: (
@@ -387,6 +549,74 @@ export function WasteForm() {
               Mentés
             </Button>
           </Box>
+
+          <DataGrid<WasteFieldValues>
+            rows={wasteList}
+            columns={[
+              { field: 'flavor', headerName: 'Macaron íz', width: 150 },
+              {
+                field: 'releasedQuantity',
+                headerName: 'Darab',
+                type: 'number',
+                width: 110,
+              },
+              {
+                field: 'manufacturingDate',
+                headerName: 'Gyártás dátuma',
+                width: 175,
+                valueFormatter(value: string) {
+                  return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
+                },
+              },
+              {
+                field: 'releaseDate',
+                headerName: 'Kitárolás dátuma',
+                width: 180,
+                valueFormatter(value: string) {
+                  return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
+                },
+              },
+              {
+                field: 'displayDate',
+                headerName: 'Pultba kerülés',
+                width: 165,
+                valueFormatter(value: string) {
+                  return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
+                },
+              },
+
+              {
+                field: 'manufacturingWasteQuantity',
+                headerName: 'Gyártási selejt',
+                type: 'number',
+                width: 165,
+              },
+              {
+                field: 'shippingWasteQuantity',
+                headerName: 'Szállítási selejt',
+                type: 'number',
+                width: 170,
+              },
+              {
+                field: 'manufacturingWasteReason',
+                headerName: 'Problémák',
+                width: 200,
+              },
+              {
+                field: 'createdAt',
+                headerName: 'Rögzítés dátuma',
+                width: 200,
+                valueFormatter(value: string) {
+                  return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
+                },
+              },
+            ]}
+            initialState={{
+              sorting: {
+                sortModel: [{ field: 'createdAt', sort: 'desc' }],
+              },
+            }}
+          ></DataGrid>
         </Stack>
 
         <Dialog
