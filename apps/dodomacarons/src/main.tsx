@@ -11,6 +11,7 @@ import { huHU as dataGridLocaleHU } from '@mui/x-data-grid/locales';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { PersistGate } from 'redux-persist/es/integration/react';
 import { persistStore } from 'redux-persist';
+import { SnackbarProvider } from 'notistack';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -29,7 +30,9 @@ root.render(
       <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="hu">
         <Provider store={store}>
           <PersistGate persistor={persistStore(store)}>
-            <App />
+            <SnackbarProvider>
+              <App />
+            </SnackbarProvider>
           </PersistGate>
         </Provider>
       </LocalizationProvider>

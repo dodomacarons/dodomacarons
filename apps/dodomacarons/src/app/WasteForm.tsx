@@ -11,12 +11,15 @@ import {
   DialogActions,
   DialogContent,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   FormHelperText,
   FormLabel,
   IconButton,
   InputAdornment,
   Slide,
   Stack,
+  Switch,
   TextField,
   Toolbar,
   Typography,
@@ -35,6 +38,8 @@ import { favors } from './favors';
 import { addWaste } from './waste.slice';
 import { DataGrid } from '@mui/x-data-grid';
 import { v4 as uuid } from 'uuid';
+import { qualityWasteReasons, visualWasteReasons } from './wasteReasons';
+import { useSnackbar } from 'notistack';
 
 const DATE_STRING_FORMAT = 'yyyy-MM-dd';
 const REQUIRED_ERROR_TEXT = 'Mező kitöltése kötelező';
@@ -62,6 +67,8 @@ const Transition = forwardRef(function Transition(
 export function WasteForm() {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
   const [filter, setFilter] = useState('');
@@ -73,7 +80,9 @@ export function WasteForm() {
 
   const { handleSubmit, formState } = methods;
 
-  const onSubmit = (data: WasteFieldValues) => {
+  const onSubmit = async (data: WasteFieldValues) => {
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     dispatch(
       addWaste({
         id: uuid(),
@@ -81,6 +90,10 @@ export function WasteForm() {
         ...data,
       })
     );
+    setIsLoading(false);
+    enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
+      variant: 'success',
+    });
   };
 
   const handleIncrement = (field: any, value: number) => {
@@ -88,7 +101,13 @@ export function WasteForm() {
   };
 
   const handleDecrement = (field: any, value: number) => {
-    field.onChange(Math.max(0, value - 1));
+    const newValue = Math.max(0, value - 1);
+    field.onChange(newValue);
+    if (!newValue) {
+      methods.setValue('manufacturingWasteReason', [], {
+        shouldValidate: true,
+      });
+    }
   };
 
   const handleChange = (event: any) => {
@@ -110,6 +129,26 @@ export function WasteForm() {
 
   const toggleDialogOpened = () => {
     setFlavorDialogOpened((prev) => !prev);
+  };
+
+  const handleSwitchChange = (reason: string, checked: boolean) => {
+    const currentReasons = methods.getValues('manufacturingWasteReason') || [];
+
+    let updatedReasons = [...currentReasons];
+
+    if (checked) {
+      // Add reason if it's not already in the array
+      if (!updatedReasons.includes(reason)) {
+        updatedReasons.push(reason);
+      }
+    } else {
+      // Remove reason if it's in the array
+      updatedReasons = updatedReasons.filter((item) => item !== reason);
+    }
+
+    methods.setValue('manufacturingWasteReason', updatedReasons, {
+      shouldValidate: true,
+    });
   };
 
   const selectedFlavor = useSelector<RootState, string | null>(
@@ -416,7 +455,13 @@ export function WasteForm() {
                     {...field}
                     value={parseInt(field.value.toString(), 10) || 0}
                     onChange={(e) => {
-                      field.onChange?.(parseInt(e.target.value, 10) || 0);
+                      const newValue = parseInt(e.target.value, 10) || 0;
+                      field.onChange?.(newValue);
+                      if (!newValue) {
+                        methods.setValue('manufacturingWasteReason', [], {
+                          shouldValidate: true,
+                        });
+                      }
                     }}
                     error={!!fieldState?.error}
                     helperText={
@@ -471,6 +516,96 @@ export function WasteForm() {
             </FormControl>
           </Box>
 
+          {methods.watch('manufacturingWasteQuantity') > 0 && (
+            <Box>
+              <Stack direction="row" gap={4}>
+                <FormGroup>
+                  <FormLabel sx={{ mb: 1 }}>
+                    <Typography variant="h6">Külalak</Typography>
+                  </FormLabel>
+                  {visualWasteReasons.map((reason) => (
+                    <FormControlLabel
+                      key={reason}
+                      control={
+                        <Controller
+                          name="manufacturingWasteReason"
+                          control={methods.control}
+                          rules={{
+                            validate(value) {
+                              if (
+                                methods.watch('manufacturingWasteQuantity') >
+                                  0 &&
+                                !value?.length
+                              ) {
+                                console.log(111111);
+                                return 'Ha van gyártási selejt, legalább egy értéket kötelező megadni a fent felsorolt problémák közül.';
+                              }
+                              console.log(222222);
+                              return true;
+                            },
+                          }}
+                          render={({ field }) => (
+                            <Switch
+                              {...field}
+                              checked={
+                                methods
+                                  .getValues('manufacturingWasteReason')
+                                  ?.includes(reason) || false
+                              }
+                              onChange={(e) =>
+                                handleSwitchChange(reason, e.target.checked)
+                              }
+                            />
+                          )}
+                        />
+                      }
+                      label={reason}
+                    />
+                  ))}
+                </FormGroup>
+                <FormGroup>
+                  <FormLabel sx={{ mb: 1 }}>
+                    <Typography variant="h6">Minőség</Typography>
+                  </FormLabel>
+                  {qualityWasteReasons.map((reason) => (
+                    <FormControlLabel
+                      key={reason}
+                      control={
+                        <Controller
+                          name="manufacturingWasteReason"
+                          control={methods.control}
+                          render={({ field }) => (
+                            <Switch
+                              {...field}
+                              checked={
+                                methods
+                                  .getValues('manufacturingWasteReason')
+                                  ?.includes(reason) || false
+                              }
+                              onChange={(e) =>
+                                handleSwitchChange(reason, e.target.checked)
+                              }
+                            />
+                          )}
+                        />
+                      }
+                      label={reason}
+                    />
+                  ))}
+                </FormGroup>
+              </Stack>
+              {methods.formState.errors?.manufacturingWasteReason && (
+                <FormHelperText>
+                  <Alert severity="error">
+                    {
+                      methods.formState.errors?.manufacturingWasteReason
+                        ?.message
+                    }
+                  </Alert>
+                </FormHelperText>
+              )}
+            </Box>
+          )}
           <Box>
             <FormControl fullWidth>
               <FormLabel sx={{ mb: 2 }}>
@@ -545,7 +680,12 @@ export function WasteForm() {
           </Box>
 
           <Box>
-            <Button type="submit" variant="contained">
+            <Button
+              loading={isLoading}
+              loadingPosition="start"
+              type="submit"
+              variant="contained"
+            >
               Mentés
             </Button>
           </Box>
