@@ -8,6 +8,7 @@
   },
   "private": true,
   "dependencies": {
+    "@auth0/auth0-react": "^2.3.0",
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
     "@mui/x-data-grid": "^7.28.3",

@@ -12,6 +12,7 @@ import { createTheme, ThemeProvider } from '@mui/material';
 import { PersistGate } from 'redux-persist/es/integration/react';
 import { persistStore } from 'redux-persist';
 import { SnackbarProvider } from 'notistack';
+import { Auth0Provider } from '@auth0/auth0-react';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -24,18 +25,29 @@ const theme = createTheme(
   coreLocaleHU
 );
 
+const auth0Domain = import.meta.env.VITE_AUTH0_DOMAIN;
+const auth0ClientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
+
 root.render(
-  <StrictMode>
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="hu">
-        <Provider store={store}>
-          <PersistGate persistor={persistStore(store)}>
-            <SnackbarProvider>
-              <App />
-            </SnackbarProvider>
-          </PersistGate>
-        </Provider>
-      </LocalizationProvider>
-    </ThemeProvider>
-  </StrictMode>
+  <Auth0Provider
+    domain={auth0Domain as string}
+    clientId={auth0ClientId as string}
+    authorizationParams={{
+      redirect_uri: window.location.origin,
+    }}
+  >
+    <StrictMode>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="hu">
+          <Provider store={store}>
+            <PersistGate persistor={persistStore(store)}>
+              <SnackbarProvider>
+                <App />
+              </SnackbarProvider>
+            </PersistGate>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    </StrictMode>
+  </Auth0Provider>
 );
