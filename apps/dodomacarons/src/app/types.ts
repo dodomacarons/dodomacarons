@@ -21,7 +21,7 @@ export interface WasteFieldValues {
   flavor: string; // íz
   releasedQuantity: number; // kitárolt mennyiség
   manufacturingWasteQuantity: number; // gyártási selejt mennyisége
-  manufacturingWasteReason?: string[]; // gyártási hiba típusa
+  manufacturingWasteReason?: { reason: string }[]; // gyártási hiba típusa
   shippingWasteQuantity: number; // szállítási selejt mennyisége
   createdAt?: string;
 }

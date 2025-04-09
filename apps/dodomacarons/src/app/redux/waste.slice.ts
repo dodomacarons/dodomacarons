@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WasteFieldValues } from './types';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { WasteFieldValues } from '../types';
+import { RootState } from './store';
 
 type WasteState = {
   list: WasteFieldValues[];
@@ -36,6 +37,13 @@ export const wasteSlice = createSlice({
     },
   },
 });
+
+export const selectWasteState = (state: RootState): WasteState => state.waste;
+
+export const selectWasteList = createSelector(
+  selectWasteState,
+  (waste) => waste.list
+);
 
 export const { addWaste, removeWaste, updateWaste, clearWaste } =
   wasteSlice.actions;

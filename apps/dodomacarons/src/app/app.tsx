@@ -1,7 +1,15 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { Waste } from './Waste';
-import { Alert, Button, CircularProgress, Stack } from '@mui/material';
+import {
+  Alert,
+  AppBar,
+  Button,
+  CircularProgress,
+  Stack,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import { Box } from '@mui/system';
+import { Waste } from './components/Waste';
 
 export function App() {
   const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth0();
@@ -38,17 +46,23 @@ export function App() {
 
   return (
     <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Dodo Macarons
+          </Typography>
+          <Button
+            color="inherit"
+            onClick={() =>
+              logout({ logoutParams: { returnTo: window.location.origin } })
+            }
+          >
+            Kijelentkezés
+          </Button>
+        </Toolbar>
+      </AppBar>
       <Waste />
-      <Box sx={{ m: 3 }}>
-        <Button
-          variant="contained"
-          onClick={() =>
-            logout({ logoutParams: { returnTo: window.location.origin } })
-          }
-        >
-          Kijelentkezés
-        </Button>
-      </Box>
+      <Box sx={{ m: 3 }}></Box>
     </>
   );
 }

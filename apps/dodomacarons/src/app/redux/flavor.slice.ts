@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
+import { RootState } from './store';
 
 export interface FlavorState {
   selectedFlavor: string | null;
@@ -39,6 +40,14 @@ export const flavorSlice = createSlice({
     },
   },
 });
+
+export const selectFlavorState = (state: RootState): FlavorState =>
+  state.flavor;
+
+export const selectRecentlyUsedFlavors = createSelector(
+  selectFlavorState,
+  (flavor) => flavor.recentlyUsedFlavors
+);
 
 export const {
   setSelectedFlavor,

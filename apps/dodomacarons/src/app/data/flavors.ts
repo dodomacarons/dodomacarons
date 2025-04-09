@@ -1,4 +1,4 @@
-export const favors = [
+export const flavors = [
   'Loulou macaron',
   'Benedict macaron',
   'Petit Prince macaron',
