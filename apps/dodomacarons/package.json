@@ -4,31 +4,5 @@
   "private": true,
   "nx": {
     "name": "dodomacarons"
-  },
-  "dependencies": {
-    "@mui/icons-material": "^6.4.8",
-    "@mui/material": "^6.4.8",
-    "@reduxjs/toolkit": "^2.6.1",
-    "react-hook-form": "^7.54.2",
-    "react-redux": "^9.2.0",
-    "@auth0/auth0-react": "^2.3.0",
-    "@emotion/react": "11.11.1",
-    "@emotion/styled": "11.11.0",
-    "@mui/x-data-grid": "^7.28.3",
-    "@mui/x-date-pickers": "^7.28.0",
-    "luxon": "^3.6.0",
-    "notistack": "^3.0.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "6.29.0",
-    "redux-persist": "^6.0.0",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "@types/luxon": "^3.4.2",
-    "@emotion/babel-plugin": "11.11.0",
-    "@types/react": "^18.3.20",
-    "@types/react-dom": "^18.3.5",
-    "@types/redux-persist": "^4.0.0"
   }
 }
