@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo-local
+    ports:
+      - "27018:27017"  # Map MongoDB port
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: dodomacarons
+    volumes:
+      - mongo-data:/data/db  # Persist data even if the container stops
+
+volumes:
+  mongo-data:
+    driver: local

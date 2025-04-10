@@ -1,6 +1,6 @@
 // adattípus, adatbázis sémának megfelelően
 export interface Waste {
-  id: string;
+  _id: string;
   manufacturingDate: string; // gyártás dátuma
   releaseDate: string; // kitárolás dátuma
   displayDate: string; // pultba kerülés dátuma
@@ -14,7 +14,7 @@ export interface Waste {
 
 // az űrlap adat típus eltérhet az adatbázistól, ezért külön kezeljük
 export interface WasteFieldValues {
-  id?: string;
+  _id?: string;
   manufacturingDate: string; // gyártás dátuma
   releaseDate: string; // kitárolás dátuma
   displayDate: string; // pultba kerülés dátuma

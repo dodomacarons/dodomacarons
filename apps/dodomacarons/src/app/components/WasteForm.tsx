@@ -11,11 +11,10 @@ import {
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { useDispatch, useSelector } from 'react-redux';
-import { v4 as uuid } from 'uuid';
+import { useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-import { addWaste, RootState } from '../redux';
+import { RootState } from '../redux';
 import { WasteFieldValues } from '../types';
 import { WasteGridList } from './WasteListGrid';
 import { FlavorSelectDialog } from './FlavorSelectDialog';
@@ -23,6 +22,7 @@ import { NumberInput } from './NumberInput';
 import { DateSelect } from './DateSelect';
 import { DATE_STRING_FORMAT, REQUIRED_ERROR_TEXT } from '../misc';
 import { ManufacturingWasteReasons } from './ManufacturingWasteReasons';
+import { useCreateWasteMutation } from '../redux/waste.api.slice';
 
 const defaultValues: WasteFieldValues = {
   manufacturingDate: '',
@@ -36,9 +36,9 @@ const defaultValues: WasteFieldValues = {
 };
 
 export function WasteForm() {
-  const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const [isLoading, setIsLoading] = useState(false);
+  const [createWaste, { isLoading: isCreateWasteLoading }] =
+    useCreateWasteMutation();
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
 
@@ -55,19 +55,17 @@ export function WasteForm() {
   );
 
   const onSubmit = async (data: WasteFieldValues) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    dispatch(
-      addWaste({
-        id: uuid(),
-        createdAt: DateTime.local().toString(),
-        ...data,
-      })
-    );
-    setIsLoading(false);
-    enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
-      variant: 'success',
-    });
+    const response = await createWaste(data);
+
+    if (response.error) {
+      enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
+        variant: 'error',
+      });
+    } else {
+      enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
+        variant: 'success',
+      });
+    }
   };
 
   const handleDialogClose = useCallback(() => {
@@ -227,7 +225,7 @@ export function WasteForm() {
           <Box>
             <Stack gap={1}>
               <Button
-                loading={isLoading}
+                loading={isCreateWasteLoading}
                 type="submit"
                 variant="contained"
                 color={hasValidationError ? 'error' : 'primary'}

@@ -11,6 +11,7 @@ import {
 import storage from 'redux-persist/lib/storage';
 import { flavorSlice } from './flavor.slice';
 import { wasteSlice } from './waste.slice';
+import wasteApi from './waste.api.slice';
 
 const persistConfig = {
   key: 'root',
@@ -21,6 +22,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   [flavorSlice.name]: flavorSlice.reducer,
   [wasteSlice.name]: wasteSlice.reducer,
+  [wasteApi.reducerPath]: wasteApi.reducer,
 });
 
 export const store = configureStore({
@@ -30,7 +32,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
+    }).concat(wasteApi.middleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

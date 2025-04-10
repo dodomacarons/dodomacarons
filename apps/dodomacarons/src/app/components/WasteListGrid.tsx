@@ -1,15 +1,16 @@
 import { DataGrid } from '@mui/x-data-grid';
 import { DateTime } from 'luxon';
-import { WasteFieldValues } from '../types';
-import { useSelector } from 'react-redux';
-import { selectWasteList } from '../redux';
+import { Waste } from '../types';
+import { useGetWastesQuery } from '../redux/waste.api.slice';
 
 export function WasteGridList() {
-  const wasteList = useSelector(selectWasteList);
+  const { data: wasteList, isLoading, isFetching } = useGetWastesQuery({});
 
   return (
-    <DataGrid<WasteFieldValues>
-      rows={wasteList}
+    <DataGrid<Waste>
+      rows={wasteList || []}
+      getRowId={(row) => row._id}
+      loading={isLoading || isFetching}
       columns={[
         { field: 'flavor', headerName: 'Macaron íz', width: 150 },
         {
@@ -71,7 +72,7 @@ export function WasteGridList() {
           headerName: 'Rögzítés dátuma',
           width: 200,
           valueFormatter(value: string) {
-            return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
+            return DateTime.fromISO(value).toFormat('yyyy. MM. dd., HH:mm');
           },
         },
       ]}
