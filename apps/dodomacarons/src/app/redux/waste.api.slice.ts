@@ -17,9 +17,24 @@ const wasteApi = createApi({
     baseUrl: import.meta.env.VITE_WASTE_API_BASE_URL,
   }),
   endpoints: (builder) => ({
-    getWastes: builder.query<Waste[], { page?: number; limit?: number }>({
-      query: ({ page = 1, limit = 100 }) => `waste?page=${page}&limit=${limit}`,
+    getWastes: builder.query<
+      Waste[],
+      { page?: number; limit?: number } & Partial<Waste>
+    >({
+      query: ({ page = 1, limit = 100, ...restParams }) =>
+        `waste?page=${page}&limit=${limit}&${new URLSearchParams(
+          restParams as any
+        ).toString()}`,
       transformResponse: (response: WastesApiResponse) => response.data,
+    }),
+
+    getAggregate1: builder.query<any, any>({
+      query: ({ displayDateFrom, displayDateTo }) =>
+        `aggregate1?${new URLSearchParams({
+          displayDateFrom,
+          displayDateTo,
+        }).toString()}`,
+      transformResponse: (response: any) => response.data,
     }),
 
     createWaste: builder.mutation<Waste, WasteFieldValues>({
@@ -45,5 +60,11 @@ const wasteApi = createApi({
   }),
 });
 
-export const { useGetWastesQuery, useCreateWasteMutation } = wasteApi;
+export const {
+  useGetWastesQuery,
+  useLazyGetWastesQuery,
+  useGetAggregate1Query,
+  useLazyGetAggregate1Query,
+  useCreateWasteMutation,
+} = wasteApi;
 export default wasteApi;

@@ -5,9 +5,9 @@ export interface Waste {
   releaseDate: string; // kitárolás dátuma
   displayDate: string; // pultba kerülés dátuma
   flavor: string; // íz
-  releasedQuantity: number; // kitárolt mennyiség
+  displayedQuantity: number; // pultba került mennyiség
   manufacturingWasteQuantity: number; // gyártási selejt mennyisége
-  manufacturingWasteReason?: string;
+  manufacturingWasteReason?: { reason: string }[];
   shippingWasteQuantity: number; // szállítási selejt mennyisége
   createdAt: string;
 }
@@ -19,7 +19,7 @@ export interface WasteFieldValues {
   releaseDate: string; // kitárolás dátuma
   displayDate: string; // pultba kerülés dátuma
   flavor: string; // íz
-  releasedQuantity: number; // kitárolt mennyiség
+  displayedQuantity: number; // pultba került mennyiség
   manufacturingWasteQuantity: number; // gyártási selejt mennyisége
   manufacturingWasteReason?: { reason: string }[]; // gyártási hiba típusa
   shippingWasteQuantity: number; // szállítási selejt mennyisége

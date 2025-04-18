@@ -19,6 +19,8 @@
     "@mui/x-date-pickers": "^7.28.0",
     "@reduxjs/toolkit": "^2.6.1",
     "cors": "^2.8.5",
+    "csv-parse": "^5.6.0",
+    "csv-stringify": "^6.5.2",
     "express": "^4.21.2",
     "luxon": "^3.6.0",
     "mongoose": "^8.13.2",
@@ -28,7 +30,8 @@
     "react-hook-form": "^7.54.2",
     "react-redux": "^9.2.0",
     "react-router-dom": "6.29.0",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "11.11.0",

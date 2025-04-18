@@ -6,7 +6,7 @@ export interface FlavorState {
   recentlyUsedFlavors: string[];
 }
 
-const initialState: FlavorState = {
+export const initialState: FlavorState = {
   selectedFlavor: null,
   recentlyUsedFlavors: [],
 };
@@ -20,14 +20,12 @@ export const flavorSlice = createSlice({
       state.selectedFlavor = flavor;
 
       const index = state.recentlyUsedFlavors.indexOf(flavor);
-      if (index !== -1) {
-        state.recentlyUsedFlavors.splice(index, 1);
-      }
+      if (index === -1) {
+        if (state.recentlyUsedFlavors.length === 25) {
+          state.recentlyUsedFlavors.shift();
+        }
 
-      state.recentlyUsedFlavors.unshift(flavor);
-
-      if (state.recentlyUsedFlavors.length > 5) {
-        state.recentlyUsedFlavors.pop();
+        state.recentlyUsedFlavors.push(flavor);
       }
     },
     clearSelectedFlavor(state) {

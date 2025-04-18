@@ -13,6 +13,7 @@ import { SnackbarProvider } from 'notistack';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { store } from './app/redux';
 import { App } from './app/app';
+import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -39,7 +40,9 @@ root.render(
           <Provider store={store}>
             <PersistGate persistor={persistStore(store)}>
               <SnackbarProvider>
-                <App />
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
               </SnackbarProvider>
             </PersistGate>
           </Provider>

@@ -52,11 +52,7 @@ export function NumberInput(props: NumberInputProps) {
               field.onChange?.(parseInt(e.target.value, 10) || 0);
             }}
             error={!!fieldState?.error}
-            helperText={
-              fieldState.error?.message && (
-                <Alert severity="error">{fieldState.error.message}</Alert>
-              )
-            }
+            helperText={fieldState.error?.message}
             slotProps={{
               input: {
                 startAdornment: (

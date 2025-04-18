@@ -7,16 +7,33 @@ import {
   PURGE,
   REGISTER,
   REHYDRATE,
+  createTransform,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { flavorSlice } from './flavor.slice';
+import { flavorSlice, FlavorState, initialState } from './flavor.slice';
 import { wasteSlice } from './waste.slice';
 import wasteApi from './waste.api.slice';
+
+type PersistedFlavorState = Pick<FlavorState, 'recentlyUsedFlavors'>;
+
+const flavorTransform = createTransform<FlavorState, PersistedFlavorState>(
+  (inboundState: FlavorState) => ({
+    recentlyUsedFlavors: inboundState.recentlyUsedFlavors,
+  }),
+
+  (outboundState: PersistedFlavorState) => ({
+    ...initialState,
+    recentlyUsedFlavors: outboundState.recentlyUsedFlavors,
+  }),
+
+  { whitelist: ['flavor'] }
+);
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['flavor', 'waste'],
+  transforms: [flavorTransform],
+  blacklist: ['waste', 'wasteApi', '_persist'],
 };
 
 const rootReducer = combineReducers({
@@ -36,7 +53,6 @@ export const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+
 export type AppDispatch = typeof store.dispatch;

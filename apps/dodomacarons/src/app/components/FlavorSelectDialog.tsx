@@ -16,10 +16,18 @@ import {
 } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import CloseIcon from '@mui/icons-material/Close';
-import { ChangeEvent, forwardRef, useCallback, useState } from 'react';
+import { ChangeEvent, forwardRef, useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectRecentlyUsedFlavors, setSelectedFlavor } from '../redux';
 import { flavors } from '../data';
+import { useLazyGetWastesQuery } from '../redux/waste.api.slice';
+import { DateTime } from 'luxon';
+import {
+  DATE_STRING_FORMAT,
+  convertWasteApiResponseToFormFieldValues,
+} from '../misc';
+import { useFormContext } from 'react-hook-form';
+import { WasteFieldValues } from '../types';
 
 export type FlavorSelectDialogProps = Omit<DialogProps, 'onClose'> & {
   onClose?: () => void;
@@ -41,6 +49,13 @@ export function FlavorSelectDialog(props: FlavorSelectDialogProps) {
   const filteredFavours = flavors.filter((flavor) =>
     flavor.toLowerCase().includes(filter.toLowerCase())
   );
+  const [getWastes] = useLazyGetWastesQuery();
+  const { reset, getValues } = useFormContext<WasteFieldValues>();
+
+  const sortedRecentlyUsedFlavors = useMemo(
+    () => [...recentlyUsedFlavors].sort((a, b) => a.localeCompare(b)),
+    [recentlyUsedFlavors]
+  );
 
   const handleDialogClose = useCallback(() => {
     setFilter('');
@@ -57,6 +72,36 @@ export function FlavorSelectDialog(props: FlavorSelectDialogProps) {
   const handleSearchInputClear = useCallback(() => {
     setFilter('');
   }, []);
+
+  const handleFlavorSelect = useCallback(
+    async (flavor: string) => {
+      const response = await getWastes({
+        flavor,
+        displayDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
+      });
+
+      if (!response.error && response.data) {
+        console.log(response.data);
+
+        if (response.data.length > 0) {
+          const wastes = response.data;
+          const sameFlavorToday = wastes[wastes.length - 1];
+          const converted =
+            convertWasteApiResponseToFormFieldValues(sameFlavorToday);
+
+          reset({
+            ...getValues(),
+            releaseDate: converted.releaseDate,
+            manufacturingDate: converted.manufacturingDate,
+          });
+        }
+
+        dispatch(setSelectedFlavor(flavor));
+        handleDialogClose();
+      }
+    },
+    [dispatch, getValues, getWastes, handleDialogClose, reset]
+  );
 
   return (
     <Dialog fullScreen slots={{ transition: Transition }} {...props}>
@@ -77,21 +122,18 @@ export function FlavorSelectDialog(props: FlavorSelectDialogProps) {
       </AppBar>
       <DialogContent>
         <Stack>
-          {recentlyUsedFlavors.length > 0 && (
+          {sortedRecentlyUsedFlavors.length > 0 && (
             <Stack gap={1}>
               <Typography>Utoljára kiválasztott ízek</Typography>
               <Stack direction="row" flexWrap="wrap" gap={2}>
-                {recentlyUsedFlavors.map((flavor) => (
+                {sortedRecentlyUsedFlavors.map((flavor) => (
                   <Button
                     key={flavor}
                     variant="contained"
                     color="secondary"
                     sx={{ textTransform: 'capitalize' }}
                     size="large"
-                    onClick={() => {
-                      dispatch(setSelectedFlavor(flavor));
-                      handleDialogClose();
-                    }}
+                    onClick={() => handleFlavorSelect(flavor)}
                   >
                     {flavor}
                   </Button>
@@ -134,10 +176,7 @@ export function FlavorSelectDialog(props: FlavorSelectDialogProps) {
                 variant="contained"
                 sx={{ textTransform: 'capitalize' }}
                 size="large"
-                onClick={() => {
-                  dispatch(setSelectedFlavor(flavor));
-                  handleDialogClose();
-                }}
+                onClick={() => handleFlavorSelect(flavor)}
               >
                 {flavor}
               </Button>

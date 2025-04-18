@@ -9,10 +9,13 @@ import {
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
+import { Routes, Route } from 'react-router-dom';
 import { Waste } from './components/Waste';
+import { Statistics } from './components/Statistics';
+import { NavBarMenu } from './components/NavBarMenu';
 
 export function App() {
-  const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth0();
+  const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
 
   if (isLoading) {
     return (
@@ -51,18 +54,13 @@ export function App() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Dodo Macarons
           </Typography>
-          <Button
-            color="inherit"
-            onClick={() =>
-              logout({ logoutParams: { returnTo: window.location.origin } })
-            }
-          >
-            Kijelentkezés
-          </Button>
+          <NavBarMenu />
         </Toolbar>
       </AppBar>
-      <Waste />
-      <Box sx={{ m: 3 }}></Box>
+      <Routes>
+        <Route path="/" element={<Waste />} />
+        <Route path="/statistics" element={<Statistics />} />
+      </Routes>
     </>
   );
 }
