@@ -8,7 +8,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 
 const defaultDateFrom = DateTime.local()
-  .minus({ year: 1 })
+  .minus({ months: 3 })
   .toFormat(DATE_STRING_FORMAT);
 const defaultDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
 
