@@ -154,7 +154,20 @@ app.get('/api/aggregate1', async (req, res) => {
 
 app.get('/api/aggregate2', async (req, res) => {
   try {
+    const { dateFrom, dateTo } = req.query;
+    const start = DateTime.fromISO(dateFrom as string)
+      .startOf('day')
+      .toJSDate();
+    const end = DateTime.fromISO(dateTo as string)
+      .endOf('day')
+      .toJSDate();
+
     const result = await Waste.aggregate([
+      {
+        $match: {
+          manufacturingDate: { $gte: start, $lte: end },
+        },
+      },
       {
         $group: {
           _id: '$manufacturingDate',

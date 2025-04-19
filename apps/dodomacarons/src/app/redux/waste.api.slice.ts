@@ -59,8 +59,15 @@ const wasteApi = createApi({
         response.data,
     }),
 
-    getAggregate2: builder.query<Aggregate2ApiResponse[], void>({
-      query: () => `aggregate2`,
+    getAggregate2: builder.query<
+      Aggregate2ApiResponse[],
+      { dateFrom: string; dateTo: string }
+    >({
+      query: ({ dateFrom, dateTo }) =>
+        `aggregate2?${new URLSearchParams({
+          dateFrom,
+          dateTo,
+        }).toString()}`,
       transformResponse: (response: { data: Aggregate2ApiResponse[] }) =>
         response.data,
     }),
