@@ -7,33 +7,25 @@ import { DATE_STRING_FORMAT, getRedGradient } from '../misc';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 
-const defaultDisplayDateFrom = DateTime.local()
+const defaultDateFrom = DateTime.local()
   .minus({ year: 1 })
   .toFormat(DATE_STRING_FORMAT);
-const defaultDisplayDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
+const defaultDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
 
 export function Aggregate1Grid() {
-  const [displayDateFrom, setDisplayDateFrom] = useState(
-    defaultDisplayDateFrom
-  );
-  const [displayDateTo, setDisplayDateTo] = useState(defaultDisplayDateTo);
+  const [dateFrom, setDateFrom] = useState(defaultDateFrom);
+  const [dateTo, setDateTo] = useState(defaultDateTo);
   const {
     data: aggregate1,
     isLoading,
     isFetching,
   } = useGetAggregate1Query({
-    displayDateFrom,
-    displayDateTo,
+    dateFrom,
+    dateTo,
   });
 
-  const displayDateFromValue = useMemo(
-    () => DateTime.fromISO(displayDateFrom),
-    [displayDateFrom]
-  );
-  const displayDateToValue = useMemo(
-    () => DateTime.fromISO(displayDateTo),
-    [displayDateTo]
-  );
+  const dateFromValue = useMemo(() => DateTime.fromISO(dateFrom), [dateFrom]);
+  const dateToValue = useMemo(() => DateTime.fromISO(dateTo), [dateTo]);
 
   return (
     <>
@@ -41,14 +33,14 @@ export function Aggregate1Grid() {
         <Grid size={6}>
           <Box sx={{ p: 4 }}>
             <FormLabel sx={{ mb: 2 }}>
-              <Typography variant="h5">Időszak kezdete</Typography>
+              <Typography variant="h5">Gyártás dátuma (-tól)</Typography>
               <DatePicker
                 closeOnSelect
                 sx={{ width: '100%' }}
-                value={displayDateFromValue}
+                value={dateFromValue}
                 onChange={(newDate) => {
                   if (newDate) {
-                    setDisplayDateFrom(newDate.toFormat(DATE_STRING_FORMAT));
+                    setDateFrom(newDate.toFormat(DATE_STRING_FORMAT));
                   }
                 }}
               />
@@ -58,14 +50,14 @@ export function Aggregate1Grid() {
         <Grid size={6}>
           <Box sx={{ p: 4 }}>
             <FormLabel sx={{ mb: 2 }}>
-              <Typography variant="h5">Időszak vége</Typography>
+              <Typography variant="h5">Gyártás dátuma (-ig)</Typography>
               <DatePicker
                 closeOnSelect
                 sx={{ width: '100%' }}
-                value={displayDateToValue}
+                value={dateToValue}
                 onChange={(newDate) => {
                   if (newDate) {
-                    setDisplayDateTo(newDate.toFormat(DATE_STRING_FORMAT));
+                    setDateTo(newDate.toFormat(DATE_STRING_FORMAT));
                   }
                 }}
               />
