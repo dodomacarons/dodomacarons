@@ -32,6 +32,11 @@ app.get('/', (req, res) => {
 app.get('/api/waste', async (req, res) => {
   try {
     const { displayDate, flavor } = req.query;
+    const page = parseInt(req.query.page as string, 10) || 0;
+    const pageSize = parseInt(req.query.pageSize as string, 10) || 100;
+    const sortModel = req.query.sortModel
+      ? JSON.parse((req.query.sortModel as string) || '[]')
+      : [];
     const filter: any = {};
 
     if (displayDate) {
@@ -49,10 +54,22 @@ app.get('/api/waste', async (req, res) => {
       filter.flavor = flavor;
     }
 
-    const wastes = await Waste.find(filter).limit(100);
+    const sort: any = {};
+    if (Array.isArray(sortModel) && sortModel.length > 0) {
+      sortModel.forEach(({ field, sort: direction }) => {
+        sort[field] = direction === 'asc' ? 1 : -1;
+      });
+    }
+
+    const total = await Waste.countDocuments(filter);
+    const wastes = await Waste.find(filter)
+      .skip(page * pageSize)
+      .sort(sort)
+      .limit(pageSize);
+
     res
       .status(200)
-      .json({ message: 'Wastes retrieved successfully', data: wastes });
+      .json({ message: 'Wastes retrieved successfully', data: wastes, total });
   } catch (error) {
     console.error('Error fetching wastes:', error);
     res.status(500).json({ message: 'Error fetching waste entries', error });

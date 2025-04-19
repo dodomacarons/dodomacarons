@@ -1,9 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Waste, WasteFieldValues } from '../types';
+import { Aggregate1ApiResponse, Waste, WasteFieldValues } from '../types';
+import { GridSortModel } from '@mui/x-data-grid';
 
 export interface WastesApiResponse {
   message: string;
   data: Waste[];
+  total: number;
 }
 
 export interface WasteApiResponse {
@@ -18,23 +20,38 @@ const wasteApi = createApi({
   }),
   endpoints: (builder) => ({
     getWastes: builder.query<
-      Waste[],
-      { page?: number; limit?: number } & Partial<Waste>
+      { data: Waste[]; total: number },
+      {
+        page?: number;
+        pageSize?: number;
+        sortModel?: GridSortModel;
+      } & Partial<Waste>
     >({
-      query: ({ page = 1, limit = 100, ...restParams }) =>
-        `waste?page=${page}&limit=${limit}&${new URLSearchParams(
-          restParams as any
-        ).toString()}`,
-      transformResponse: (response: WastesApiResponse) => response.data,
+      query: ({ page = 0, pageSize = 100, sortModel, ...restParams }) =>
+        `waste?page=${page}&pageSize=${pageSize}${
+          sortModel ? '&sortModel=' + JSON.stringify(sortModel) : ''
+        }${
+          Object.keys(restParams).length > 0
+            ? '&' + new URLSearchParams(restParams as any).toString()
+            : ''
+        }`,
+      transformResponse: (response: WastesApiResponse) => ({
+        data: response.data,
+        total: response.total,
+      }),
     }),
 
-    getAggregate1: builder.query<any, any>({
+    getAggregate1: builder.query<
+      Aggregate1ApiResponse[],
+      { displayDateFrom: string; displayDateTo: string }
+    >({
       query: ({ displayDateFrom, displayDateTo }) =>
         `aggregate1?${new URLSearchParams({
           displayDateFrom,
           displayDateTo,
         }).toString()}`,
-      transformResponse: (response: any) => response.data,
+      transformResponse: (response: { data: Aggregate1ApiResponse[] }) =>
+        response.data,
     }),
 
     createWaste: builder.mutation<Waste, WasteFieldValues>({
@@ -49,7 +66,7 @@ const wasteApi = createApi({
           const { data: waste } = await queryFulfilled;
           dispatch(
             wasteApi.util.updateQueryData('getWastes', {}, (draft) => {
-              draft.unshift(waste);
+              draft.data.unshift(waste);
             })
           );
         } catch (error) {

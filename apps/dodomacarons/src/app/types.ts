@@ -25,3 +25,12 @@ export interface WasteFieldValues {
   shippingWasteQuantity: number; // szállítási selejt mennyisége
   createdAt?: string;
 }
+
+export interface Aggregate1ApiResponse {
+  flavor: string;
+  totalDisplayed: number;
+  totalManufacturingWaste: number;
+  totalShippingWaste: number;
+  totalWaste: number;
+  wasteRatio: number;
+}

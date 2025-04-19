@@ -1,11 +1,34 @@
 import { Grid2 as Grid } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridSortModel } from '@mui/x-data-grid';
 import { DateTime } from 'luxon';
 import { Waste } from '../types';
 import { useGetWastesQuery } from '../redux/waste.api.slice';
+import { useEffect, useState } from 'react';
 
 export function WasteGridList() {
-  const { data: wasteList, isLoading, isFetching } = useGetWastesQuery({});
+  const [rowCount, setRowCount] = useState(0);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 25,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel | undefined>([
+    {
+      field: 'displayDate',
+      sort: 'desc',
+    },
+  ]);
+  const { data, isLoading, isFetching } = useGetWastesQuery({
+    ...paginationModel,
+    sortModel,
+  });
+
+  const wasteList = data?.data;
+
+  useEffect(() => {
+    if (data?.total) {
+      setRowCount(data.total || 0);
+    }
+  }, [data?.total]);
 
   return (
     <Grid container>
@@ -25,6 +48,7 @@ export function WasteGridList() {
             field: 'manufacturingDate',
             headerName: 'Gyártás dátuma',
             width: 175,
+            type: 'date',
             valueFormatter(value: string) {
               return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
             },
@@ -33,6 +57,7 @@ export function WasteGridList() {
             field: 'releaseDate',
             headerName: 'Kitárolás dátuma',
             width: 180,
+            type: 'date',
             valueFormatter(value: string) {
               return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
             },
@@ -41,6 +66,7 @@ export function WasteGridList() {
             field: 'displayDate',
             headerName: 'Pultba kerülés',
             width: 165,
+            type: 'date',
             valueFormatter(value: string) {
               return DateTime.fromISO(value).toFormat('yyyy. MM. dd.');
             },
@@ -72,6 +98,7 @@ export function WasteGridList() {
           {
             field: 'createdAt',
             headerName: 'Rögzítés dátuma',
+            type: 'date',
             width: 200,
             valueFormatter(value: string) {
               return DateTime.fromISO(value).toFormat('yyyy. MM. dd., HH:mm');
@@ -80,10 +107,18 @@ export function WasteGridList() {
         ]}
         initialState={{
           sorting: {
-            sortModel: [{ field: 'createdAt', sort: 'desc' }],
+            sortModel,
           },
         }}
-      ></DataGrid>
+        rowCount={rowCount}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        paginationMode="server"
+        disableColumnFilter={true}
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={setSortModel}
+      />
     </Grid>
   );
 }

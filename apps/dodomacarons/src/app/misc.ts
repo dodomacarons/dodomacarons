@@ -21,3 +21,10 @@ export function convertWasteApiResponseToFormFieldValues(
     ),
   };
 }
+
+export function getRedGradient(value: number) {
+  const clamped = Math.max(0, Math.min(100, value));
+  const saturation = clamped;
+  const lightness = 100 - clamped;
+  return `hsl(0, ${saturation}%, ${lightness}%)`;
+}
