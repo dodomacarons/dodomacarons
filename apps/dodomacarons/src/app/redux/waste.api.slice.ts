@@ -1,5 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Aggregate1ApiResponse, Waste, WasteFieldValues } from '../types';
+import {
+  Aggregate1ApiResponse,
+  Aggregate2ApiResponse,
+  Waste,
+  WasteFieldValues,
+} from '../types';
 import { GridSortModel } from '@mui/x-data-grid';
 
 export interface WastesApiResponse {
@@ -54,6 +59,12 @@ const wasteApi = createApi({
         response.data,
     }),
 
+    getAggregate2: builder.query<Aggregate2ApiResponse[], void>({
+      query: () => `aggregate2`,
+      transformResponse: (response: { data: Aggregate2ApiResponse[] }) =>
+        response.data,
+    }),
+
     createWaste: builder.mutation<Waste, WasteFieldValues>({
       query: (newWaste) => ({
         url: 'waste',
@@ -82,6 +93,8 @@ export const {
   useLazyGetWastesQuery,
   useGetAggregate1Query,
   useLazyGetAggregate1Query,
+  useGetAggregate2Query,
+  useLazyGetAggregate2Query,
   useCreateWasteMutation,
 } = wasteApi;
 export default wasteApi;

@@ -57,6 +57,14 @@ export function NavBarMenu() {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            navigate('/statistics2');
+            handleClose();
+          }}
+        >
+          Statisztika 2
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
             logout({ logoutParams: { returnTo: window.location.origin } });
           }}
         >

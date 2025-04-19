@@ -152,6 +152,40 @@ app.get('/api/aggregate1', async (req, res) => {
   }
 });
 
+app.get('/api/aggregate2', async (req, res) => {
+  try {
+    const result = await Waste.aggregate([
+      {
+        $group: {
+          _id: '$manufacturingDate',
+          totalManufacturingWaste: { $sum: '$manufacturingWasteQuantity' },
+          totalShippingWaste: { $sum: '$shippingWasteQuantity' },
+        },
+      },
+      {
+        $project: {
+          manufacturingDate: '$_id',
+          _id: 0,
+          totalManufacturingWaste: 1,
+          totalShippingWaste: 1,
+          totalWaste: {
+            $add: ['$totalManufacturingWaste', '$totalShippingWaste'],
+          },
+        },
+      },
+      {
+        $sort: { manufacturingDate: 1 },
+      },
+    ]);
+    res
+      .status(200)
+      .json({ message: 'Wastes retrieved successfully', data: result });
+  } catch (error) {
+    console.error('Error fetching wastes:', error);
+    res.status(500).json({ message: 'Error fetching waste entries', error });
+  }
+});
+
 app.post('/api/waste', async (req, res) => {
   try {
     const {

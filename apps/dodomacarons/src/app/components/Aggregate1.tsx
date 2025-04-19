@@ -101,6 +101,7 @@ export function Aggregate1Grid() {
           },
         }}
         disableColumnFilter={true}
+        disableColumnMenu={true}
         hideFooterPagination={true}
       />
     </>

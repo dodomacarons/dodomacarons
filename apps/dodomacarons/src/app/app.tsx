@@ -13,6 +13,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
+import { Statistics2 } from './components/Statistics2';
 
 export function App() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
@@ -60,6 +61,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<Waste />} />
         <Route path="/statistics" element={<Statistics />} />
+        <Route path="/statistics2" element={<Statistics2 />} />
       </Routes>
     </>
   );

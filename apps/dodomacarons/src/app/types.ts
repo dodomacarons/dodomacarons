@@ -34,3 +34,10 @@ export interface Aggregate1ApiResponse {
   totalWaste: number;
   wasteRatio: number;
 }
+
+export interface Aggregate2ApiResponse {
+  manufacturingDate: string;
+  totalManufacturingWaste: number;
+  totalShippingWaste: number;
+  totalWaste: number;
+}
