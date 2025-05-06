@@ -20,6 +20,7 @@ export interface WasteApiResponse {
 
 const wasteApi = createApi({
   reducerPath: 'wasteApi',
+  tagTypes: ['Waste'],
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_WASTE_API_BASE_URL,
   }),
@@ -44,6 +45,7 @@ const wasteApi = createApi({
         data: response.data,
         total: response.total,
       }),
+      providesTags: ['Waste'],
     }),
 
     getAggregate1: builder.query<
@@ -79,18 +81,15 @@ const wasteApi = createApi({
         body: newWaste,
       }),
       transformResponse: (response: WasteApiResponse) => response.data,
-      onQueryStarted: async (_, { queryFulfilled, dispatch }) => {
-        try {
-          const { data: waste } = await queryFulfilled;
-          dispatch(
-            wasteApi.util.updateQueryData('getWastes', {}, (draft) => {
-              draft.data.unshift(waste);
-            })
-          );
-        } catch (error) {
-          console.error('Error updating cache after creating waste:', error);
-        }
-      },
+      invalidatesTags: ['Waste'],
+    }),
+
+    deleteWaste: builder.mutation<void, string>({
+      query: (wasteId) => ({
+        url: `waste/${wasteId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Waste'],
     }),
   }),
 });
@@ -103,5 +102,6 @@ export const {
   useGetAggregate2Query,
   useLazyGetAggregate2Query,
   useCreateWasteMutation,
+  useDeleteWasteMutation,
 } = wasteApi;
 export default wasteApi;

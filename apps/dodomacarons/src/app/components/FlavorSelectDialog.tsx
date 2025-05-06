@@ -81,10 +81,8 @@ export function FlavorSelectDialog(props: FlavorSelectDialogProps) {
       });
 
       if (!response.error && response.data) {
-        console.log(response.data);
-
-        if (response.data.length > 0) {
-          const wastes = response.data;
+        if (response.data.data.length > 0) {
+          const wastes = response.data.data;
           const sameFlavorToday = wastes[wastes.length - 1];
           const converted =
             convertWasteApiResponseToFormFieldValues(sameFlavorToday);

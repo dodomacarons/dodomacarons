@@ -237,6 +237,22 @@ app.post('/api/waste', async (req, res) => {
   }
 });
 
+app.delete('/api/waste/:id', async (req, res) => {
+  try {
+    const result = await Waste.findByIdAndDelete(req.params.id);
+    if (!result) {
+      return res.status(404).json({ message: 'Entry not found' });
+    }
+    return res.json({ message: 'Entry deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting waste entry:', error);
+    return res.status(500).json({
+      message: 'Error deleting waste entry',
+      error: (error as Error).message,
+    });
+  }
+});
+
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);
 });

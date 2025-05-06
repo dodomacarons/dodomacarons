@@ -69,4 +69,6 @@ export const flavors = [
   'Baileys macaron',
   'Céline macaron',
   'Artemis macaron',
+  'White Rabbit',
+  'Infiniment Cocholat',
 ].sort((a, b) => a.localeCompare(b));

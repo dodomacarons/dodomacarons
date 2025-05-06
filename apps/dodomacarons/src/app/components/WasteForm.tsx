@@ -12,10 +12,10 @@ import {
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-import { RootState } from '../redux';
+import { RootState, setSelectedFlavor } from '../redux';
 import { WasteFieldValues } from '../types';
 import { FlavorSelectDialog } from './FlavorSelectDialog';
 import { NumberInput } from './NumberInput';
@@ -37,6 +37,7 @@ const defaultValues: WasteFieldValues = {
 
 export function WasteForm() {
   const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
   const [createWaste, { isLoading: isCreateWasteLoading }] =
     useCreateWasteMutation();
 
@@ -66,6 +67,7 @@ export function WasteForm() {
         variant: 'success',
       });
       reset(defaultValues);
+      dispatch(setSelectedFlavor(null));
     }
   };
 

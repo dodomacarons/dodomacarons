@@ -19,6 +19,10 @@ export const flavorSlice = createSlice({
       const flavor = action.payload;
       state.selectedFlavor = flavor;
 
+      if (state.selectedFlavor === null) {
+        return;
+      }
+
       const index = state.recentlyUsedFlavors.indexOf(flavor);
       if (index === -1) {
         if (state.recentlyUsedFlavors.length === 25) {

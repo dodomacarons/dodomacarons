@@ -1,12 +1,20 @@
-import { Grid2 as Grid } from '@mui/material';
+import { Button, Grid2 as Grid, Typography } from '@mui/material';
 import { DataGrid, GridSortModel } from '@mui/x-data-grid';
 import { DateTime } from 'luxon';
 import { Waste } from '../types';
-import { useGetWastesQuery } from '../redux/waste.api.slice';
+import {
+  useDeleteWasteMutation,
+  useGetWastesQuery,
+} from '../redux/waste.api.slice';
 import { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
+import { WasteDeleteConfirmDialog } from './WasteDeleteConfirmDialog';
 
 export function WasteGridList() {
   const [rowCount, setRowCount] = useState(0);
+  const { enqueueSnackbar } = useSnackbar();
+  const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
+  const [wasteIdBeingDeleted, setWasteIdBeingDeleted] = useState('');
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 25,
@@ -21,6 +29,8 @@ export function WasteGridList() {
     ...paginationModel,
     sortModel,
   });
+
+  const [deleteWaste, { isLoading: isDeleting }] = useDeleteWasteMutation();
 
   const wasteList = data?.data;
 
@@ -104,6 +114,26 @@ export function WasteGridList() {
               return DateTime.fromISO(value).toFormat('yyyy. MM. dd., HH:mm');
             },
           },
+          {
+            field: 'actions',
+            headerName: 'Törlés',
+            width: 120,
+            renderCell({ row }) {
+              return (
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="error"
+                  onClick={() => {
+                    setWasteIdBeingDeleted(row._id);
+                    setDeleteConfirmOpened((prev) => !prev);
+                  }}
+                >
+                  Törlés
+                </Button>
+              );
+            },
+          },
         ]}
         initialState={{
           sorting: {
@@ -118,6 +148,30 @@ export function WasteGridList() {
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={setSortModel}
+        disableRowSelectionOnClick={true}
+      />
+      <WasteDeleteConfirmDialog
+        open={deleteConfirmOpened}
+        loading={isDeleting}
+        onClose={() => {
+          setDeleteConfirmOpened(false);
+        }}
+        onConfirm={async () => {
+          if (wasteIdBeingDeleted) {
+            const response = await deleteWaste(wasteIdBeingDeleted);
+            if (response.error) {
+              enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
+                variant: 'error',
+              });
+            } else {
+              setWasteIdBeingDeleted('');
+              setDeleteConfirmOpened(false);
+              enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
+                variant: 'success',
+              });
+            }
+          }
+        }}
       />
     </Grid>
   );
