@@ -252,13 +252,17 @@ app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
+  console.log('updating waste with id: ', id);
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: 'Invalid ID' });
   }
 
+  console.log('mongo id is valid, proceed');
+
   try {
     const updatedWaste = await Waste.findByIdAndUpdate(
-      id,
+      new mongoose.Types.ObjectId(req.params.id),
       {
         ...updates,
         updatedAt: new Date(),
@@ -267,8 +271,11 @@ app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
     );
 
     if (!updatedWaste) {
+      console.log('waste is not found in db');
       return res.status(404).json({ error: 'Waste not found' });
     }
+
+    console.log('waste updated successfully');
 
     return res.json({
       message: 'Waste entry updated successfully',
