@@ -10,6 +10,7 @@ export interface Waste {
   manufacturingWasteReason?: { reason: string }[];
   shippingWasteQuantity: number; // szállítási selejt mennyisége
   createdAt: string;
+  updatedAt: string;
 }
 
 // az űrlap adat típus eltérhet az adatbázistól, ezért külön kezeljük
@@ -24,6 +25,7 @@ export interface WasteFieldValues {
   manufacturingWasteReason?: { reason: string }[]; // gyártási hiba típusa
   shippingWasteQuantity: number; // szállítási selejt mennyisége
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Aggregate1ApiResponse {

@@ -15,14 +15,24 @@ import { Box } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-import { RootState, setSelectedFlavor } from '../redux';
+import {
+  RootState,
+  selectWasteBeingEdited,
+  selectWasteIdBeingEdited,
+  setSelectedFlavor,
+  setWasteBeingEdited,
+  setWasteIdBeingEdited,
+} from '../redux';
 import { WasteFieldValues } from '../types';
 import { FlavorSelectDialog } from './FlavorSelectDialog';
 import { NumberInput } from './NumberInput';
 import { DateSelect } from './DateSelect';
 import { DATE_STRING_FORMAT, REQUIRED_ERROR_TEXT } from '../misc';
 import { ManufacturingWasteReasons } from './ManufacturingWasteReasons';
-import { useCreateWasteMutation } from '../redux/waste.api.slice';
+import {
+  useCreateWasteMutation,
+  useUpdateWasteMutation,
+} from '../redux/waste.api.slice';
 
 const defaultValues: WasteFieldValues = {
   manufacturingDate: '',
@@ -40,6 +50,8 @@ export function WasteForm() {
   const dispatch = useDispatch();
   const [createWaste, { isLoading: isCreateWasteLoading }] =
     useCreateWasteMutation();
+  const [updateWaste, { isLoading: isUpdateWasteLoading }] =
+    useUpdateWasteMutation();
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
 
@@ -47,6 +59,10 @@ export function WasteForm() {
     defaultValues,
     reValidateMode: 'onChange',
   });
+
+  const wasteBeingEdited = useSelector(selectWasteBeingEdited);
+  const wasteIdBeingEdited = useSelector(selectWasteIdBeingEdited);
+  const isEditingWaste = !!(wasteBeingEdited && wasteIdBeingEdited);
 
   const { handleSubmit, formState, reset } = methods;
 
@@ -56,7 +72,12 @@ export function WasteForm() {
   );
 
   const onSubmit = async (data: WasteFieldValues) => {
-    const response = await createWaste(data);
+    const response = isEditingWaste
+      ? await updateWaste({
+          wasteId: wasteIdBeingEdited,
+          updatedWaste: data,
+        })
+      : await createWaste(data);
 
     if (response.error) {
       enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
@@ -66,8 +87,11 @@ export function WasteForm() {
       enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
         variant: 'success',
       });
-      reset(defaultValues);
-      dispatch(setSelectedFlavor(null));
+
+      if (!isEditingWaste) {
+        reset(defaultValues);
+        dispatch(setSelectedFlavor(null));
+      }
     }
   };
 
@@ -90,6 +114,31 @@ export function WasteForm() {
       });
     }
   }, [methods, selectedFlavor]);
+
+  useEffect(() => {
+    if (wasteBeingEdited !== null) {
+      reset({
+        manufacturingDate: DateTime.fromISO(
+          wasteBeingEdited.manufacturingDate
+        ).toFormat(DATE_STRING_FORMAT),
+        releaseDate: DateTime.fromISO(wasteBeingEdited.releaseDate).toFormat(
+          DATE_STRING_FORMAT
+        ),
+        displayDate: DateTime.fromISO(wasteBeingEdited.displayDate).toFormat(
+          DATE_STRING_FORMAT
+        ),
+        flavor: wasteBeingEdited.flavor,
+        displayedQuantity: wasteBeingEdited.displayedQuantity,
+        manufacturingWasteQuantity: wasteBeingEdited.manufacturingWasteQuantity,
+        manufacturingWasteReason: wasteBeingEdited.manufacturingWasteReason,
+        shippingWasteQuantity: wasteBeingEdited.shippingWasteQuantity,
+      });
+      dispatch(setSelectedFlavor(wasteBeingEdited.flavor));
+    } else {
+      reset(defaultValues);
+      dispatch(setSelectedFlavor(null));
+    }
+  }, [wasteIdBeingEdited, wasteBeingEdited, reset, dispatch]);
 
   return (
     <FormProvider {...methods}>
@@ -229,15 +278,43 @@ export function WasteForm() {
 
           <Box>
             <Stack gap={1}>
-              <Button
-                loading={isCreateWasteLoading}
-                type="submit"
-                variant="contained"
-                color={hasValidationError ? 'error' : 'primary'}
-                size="large"
-              >
-                Mentés
-              </Button>
+              {!isEditingWaste && (
+                <Stack gap={1} direction="row">
+                  <Button
+                    loading={isCreateWasteLoading}
+                    type="submit"
+                    variant="contained"
+                    color={hasValidationError ? 'error' : 'primary'}
+                    size="large"
+                  >
+                    Mentés
+                  </Button>
+                </Stack>
+              )}
+              {isEditingWaste && (
+                <Stack gap={1} direction="row">
+                  <Button
+                    loading={isUpdateWasteLoading}
+                    type="submit"
+                    variant="contained"
+                    color={hasValidationError ? 'error' : 'primary'}
+                    size="large"
+                  >
+                    Módosítás
+                  </Button>
+                  <Button
+                    size="large"
+                    color="secondary"
+                    variant="contained"
+                    onClick={() => {
+                      dispatch(setWasteBeingEdited(null));
+                      dispatch(setWasteIdBeingEdited(null));
+                    }}
+                  >
+                    Kilépés szerkesztésből
+                  </Button>
+                </Stack>
+              )}
               {hasValidationError && (
                 <Alert severity="error">
                   Hiba történt. Ellenőrizd a beviteli mezőket.

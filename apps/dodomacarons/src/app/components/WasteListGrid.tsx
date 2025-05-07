@@ -9,8 +9,11 @@ import {
 import { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
 import { WasteDeleteConfirmDialog } from './WasteDeleteConfirmDialog';
+import { useDispatch } from 'react-redux';
+import { setWasteBeingEdited, setWasteIdBeingEdited } from '../redux';
 
 export function WasteGridList() {
+  const dispatch = useDispatch();
   const [rowCount, setRowCount] = useState(0);
   const { enqueueSnackbar } = useSnackbar();
   const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
@@ -115,7 +118,38 @@ export function WasteGridList() {
             },
           },
           {
-            field: 'actions',
+            field: 'updatedAt',
+            headerName: 'Módosítás dátuma',
+            type: 'date',
+            width: 200,
+            valueFormatter(value: string) {
+              if (!value) {
+                return '-';
+              }
+              return DateTime.fromISO(value).toFormat('yyyy. MM. dd., HH:mm');
+            },
+          },
+          {
+            field: 'edit',
+            headerName: 'Szerkesztés',
+            width: 120,
+            renderCell({ row }) {
+              return (
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => {
+                    dispatch(setWasteIdBeingEdited(row._id));
+                    dispatch(setWasteBeingEdited(row));
+                  }}
+                >
+                  Szerkesztés
+                </Button>
+              );
+            },
+          },
+          {
+            field: 'delete',
             headerName: 'Törlés',
             width: 120,
             renderCell({ row }) {

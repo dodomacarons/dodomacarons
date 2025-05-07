@@ -99,6 +99,18 @@ const wasteApi = createApi({
       }),
       invalidatesTags: ['Waste'],
     }),
+
+    updateWaste: builder.mutation<
+      void,
+      { wasteId: string; updatedWaste: WasteFieldValues }
+    >({
+      query: ({ wasteId, updatedWaste }) => ({
+        url: `waste/${wasteId}`,
+        method: 'PATCH',
+        body: updatedWaste,
+      }),
+      invalidatesTags: ['Waste'],
+    }),
   }),
 });
 
@@ -111,5 +123,6 @@ export const {
   useLazyGetAggregate2Query,
   useCreateWasteMutation,
   useDeleteWasteMutation,
+  useUpdateWasteMutation,
 } = wasteApi;
 export default wasteApi;

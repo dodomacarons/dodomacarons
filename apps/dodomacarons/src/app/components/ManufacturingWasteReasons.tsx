@@ -43,7 +43,7 @@ export function ManufacturingWasteReasons() {
         </FormLabel>
         <Grid container>
           {new Array(numberOfColumns).fill(1).map((_, i) => (
-            <Grid size={12 / numberOfColumns}>
+            <Grid size={12 / numberOfColumns} key={`reason-column-${i}`}>
               {wasteReasons.slice(i * 4, i * 4 + 4).map((reason) => (
                 <FormControlLabel
                   key={reason}

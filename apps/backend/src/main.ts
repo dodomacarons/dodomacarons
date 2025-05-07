@@ -29,7 +29,7 @@ mongoose
   .catch((err) => console.log('MongoDB connection error:', err));
 
 app.get('/', (req, res) => {
-  res.send({ message: 'Hello API' });
+  return res.send({ message: 'Hello API' });
 });
 
 app.get('/api/waste', authMiddleware, async (req, res) => {
@@ -70,14 +70,16 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
       .sort(sort)
       .limit(pageSize);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Wastes retrieved successfully',
       data: wastes,
       total,
     });
   } catch (error) {
     console.error('Error fetching wastes:', error);
-    res.status(500).json({ message: 'Error fetching waste entries', error });
+    return res
+      .status(500)
+      .json({ message: 'Error fetching waste entries', error });
   }
 });
 
@@ -148,12 +150,14 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
         $sort: { flavor: 1 },
       },
     ]);
-    res
+    return res
       .status(200)
       .json({ message: 'Wastes retrieved successfully', data: result });
   } catch (error) {
     console.error('Error fetching wastes:', error);
-    res.status(500).json({ message: 'Error fetching waste entries', error });
+    return res
+      .status(500)
+      .json({ message: 'Error fetching waste entries', error });
   }
 });
 
@@ -195,12 +199,14 @@ app.get('/api/aggregate2', authMiddleware, async (req, res) => {
         $sort: { manufacturingDate: 1 },
       },
     ]);
-    res
+    return res
       .status(200)
       .json({ message: 'Wastes retrieved successfully', data: result });
   } catch (error) {
     console.error('Error fetching wastes:', error);
-    res.status(500).json({ message: 'Error fetching waste entries', error });
+    return res
+      .status(500)
+      .json({ message: 'Error fetching waste entries', error });
   }
 });
 
@@ -230,13 +236,48 @@ app.post('/api/waste', authMiddleware, async (req, res) => {
 
     await newWaste.save();
 
-    res
+    return res
       .status(201)
       .json({ message: 'Waste entry created successfully', data: newWaste });
   } catch (error) {
     console.error('Error creating waste entry:', error);
-    res.status(500).json({
+    return res.status(500).json({
       message: 'Error creating waste entry',
+      error: (error as Error).message,
+    });
+  }
+});
+
+app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
+  try {
+    const updatedWaste = await Waste.findByIdAndUpdate(
+      id,
+      {
+        ...updates,
+        updatedAt: new Date(),
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedWaste) {
+      return res.status(404).json({ error: 'Waste not found' });
+    }
+
+    return res.json({
+      message: 'Waste entry updated successfully',
+      data: updatedWaste,
+    });
+  } catch (error) {
+    console.error('Error updating waste entry:', error);
+    return res.status(500).json({
+      message: 'Error updating waste entry',
       error: (error as Error).message,
     });
   }
