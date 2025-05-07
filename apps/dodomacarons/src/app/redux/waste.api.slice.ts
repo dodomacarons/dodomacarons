@@ -6,6 +6,7 @@ import {
   WasteFieldValues,
 } from '../types';
 import { GridSortModel } from '@mui/x-data-grid';
+import { RootState } from './store';
 
 export interface WastesApiResponse {
   message: string;
@@ -23,6 +24,13 @@ const wasteApi = createApi({
   tagTypes: ['Waste'],
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_WASTE_API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token;
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
     getWastes: builder.query<

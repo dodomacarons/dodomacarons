@@ -1,4 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
+import { useSelector } from 'react-redux';
 import {
   Alert,
   AppBar,
@@ -14,9 +15,11 @@ import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
 import { Statistics2 } from './components/Statistics2';
+import { RootState } from './redux';
 
 export function App() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
+  const token = useSelector((state: RootState) => state.auth.token);
 
   if (isLoading) {
     return (
@@ -46,6 +49,10 @@ export function App() {
         </Box>
       </Stack>
     );
+  }
+
+  if (!token) {
+    return null;
   }
 
   return (

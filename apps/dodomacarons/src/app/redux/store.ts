@@ -13,6 +13,7 @@ import storage from 'redux-persist/lib/storage';
 import { flavorSlice, FlavorState, initialState } from './flavor.slice';
 import { wasteSlice } from './waste.slice';
 import wasteApi from './waste.api.slice';
+import { authSlice } from './auth.slice';
 
 type PersistedFlavorState = Pick<FlavorState, 'recentlyUsedFlavors'>;
 
@@ -33,10 +34,11 @@ const persistConfig = {
   key: 'root',
   storage,
   transforms: [flavorTransform],
-  blacklist: ['waste', 'wasteApi', '_persist'],
+  blacklist: ['waste', 'wasteApi', 'auth', '_persist'],
 };
 
 const rootReducer = combineReducers({
+  [authSlice.name]: authSlice.reducer,
   [flavorSlice.name]: flavorSlice.reducer,
   [wasteSlice.name]: wasteSlice.reducer,
   [wasteApi.reducerPath]: wasteApi.reducer,

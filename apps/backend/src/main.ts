@@ -3,6 +3,7 @@ import { Waste } from './schemas/Waste';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { DateTime } from 'luxon';
+import { authMiddleware } from './auth.middleware';
 
 const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? +process.env.PORT : 4201;
@@ -15,6 +16,7 @@ app.use(
     origin: [
       'http://localhost:4200',
       'https://spiffy-jelly-837cfe.netlify.app',
+      'https://dodomacarons.duckdns.org',
     ],
   })
 );
@@ -29,7 +31,7 @@ app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
 });
 
-app.get('/api/waste', async (req, res) => {
+app.get('/api/waste', authMiddleware, async (req, res) => {
   try {
     const { displayDate, flavor } = req.query;
     const page = parseInt(req.query.page as string, 10) || 0;
@@ -67,16 +69,18 @@ app.get('/api/waste', async (req, res) => {
       .sort(sort)
       .limit(pageSize);
 
-    res
-      .status(200)
-      .json({ message: 'Wastes retrieved successfully', data: wastes, total });
+    res.status(200).json({
+      message: 'Wastes retrieved successfully',
+      data: wastes,
+      total,
+    });
   } catch (error) {
     console.error('Error fetching wastes:', error);
     res.status(500).json({ message: 'Error fetching waste entries', error });
   }
 });
 
-app.get('/api/aggregate1', async (req, res) => {
+app.get('/api/aggregate1', authMiddleware, async (req, res) => {
   try {
     const { dateFrom, dateTo } = req.query;
     const start = DateTime.fromISO(dateFrom as string)
@@ -152,7 +156,7 @@ app.get('/api/aggregate1', async (req, res) => {
   }
 });
 
-app.get('/api/aggregate2', async (req, res) => {
+app.get('/api/aggregate2', authMiddleware, async (req, res) => {
   try {
     const { dateFrom, dateTo } = req.query;
     const start = DateTime.fromISO(dateFrom as string)
@@ -199,7 +203,7 @@ app.get('/api/aggregate2', async (req, res) => {
   }
 });
 
-app.post('/api/waste', async (req, res) => {
+app.post('/api/waste', authMiddleware, async (req, res) => {
   try {
     const {
       manufacturingDate,
@@ -237,7 +241,7 @@ app.post('/api/waste', async (req, res) => {
   }
 });
 
-app.delete('/api/waste/:id', async (req, res) => {
+app.delete('/api/waste/:id', authMiddleware, async (req, res) => {
   try {
     const result = await Waste.findByIdAndDelete(req.params.id);
     if (!result) {
