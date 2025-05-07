@@ -1,4 +1,5 @@
 import { StrictMode } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
@@ -13,7 +14,6 @@ import { SnackbarProvider } from 'notistack';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { store } from './app/redux';
 import { App } from './app/app';
-import { BrowserRouter } from 'react-router-dom';
 import { Authentication } from './auth';
 
 const root = ReactDOM.createRoot(
