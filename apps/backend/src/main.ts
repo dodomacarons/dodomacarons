@@ -2,8 +2,10 @@ import express from 'express';
 import { Waste } from './schemas/Waste';
 import cors from 'cors';
 import mongoose, { SortOrder } from 'mongoose';
+import morgan from 'morgan';
 import { DateTime } from 'luxon';
 import { authMiddleware } from './auth.middleware';
+import logger from './logger';
 
 const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? +process.env.PORT : 4201;
@@ -21,12 +23,21 @@ app.use(
     ],
   })
 );
+
 app.use(express.json());
+
+app.use(
+  morgan('combined', {
+    stream: {
+      write: (message: string) => logger.http(message.trim()),
+    },
+  })
+);
 
 mongoose
   .connect(mongoConnectionString)
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.log('MongoDB connection error:', err));
+  .then(() => logger.info('MongoDB connected'))
+  .catch((err) => logger.error(`MongoDB connection error: ${err.message}`));
 
 app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
@@ -79,7 +90,7 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
       total,
     });
   } catch (error) {
-    console.error('Error fetching wastes:', error);
+    logger.error(`error fetching wastes: ${(error as Error).message}'`);
     res.status(500).json({ message: 'Error fetching waste entries', error });
   }
 });
@@ -155,7 +166,7 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
       .status(200)
       .json({ message: 'Wastes retrieved successfully', data: result });
   } catch (error) {
-    console.error('Error fetching wastes:', error);
+    logger.error(`error fetching wastes: ${(error as Error).message}`);
     res.status(500).json({ message: 'Error fetching waste entries', error });
   }
 });
@@ -202,12 +213,13 @@ app.get('/api/aggregate2', authMiddleware, async (req, res) => {
       .status(200)
       .json({ message: 'Wastes retrieved successfully', data: result });
   } catch (error) {
-    console.error('Error fetching wastes:', error);
+    logger.error(`error fetching wastes: ${(error as Error).message}`);
     res.status(500).json({ message: 'Error fetching waste entries', error });
   }
 });
 
 app.post('/api/waste', authMiddleware, async (req, res) => {
+  logger.info('attempting to create a new waste record');
   try {
     const {
       manufacturingDate,
@@ -233,14 +245,19 @@ app.post('/api/waste', authMiddleware, async (req, res) => {
 
     await newWaste.save();
 
+    logger.info(`waste record created successfully with id: ${newWaste._id}`);
+
     res
       .status(201)
       .json({ message: 'Waste entry created successfully', data: newWaste });
   } catch (error) {
-    console.error('Error creating waste entry:', error);
+    logger.error(
+      `failed to to create a new waste record: ${(error as Error).message}`
+    );
+
     res.status(500).json({
       message: 'Error creating waste entry',
-      error: (error as Error).message,
+      error,
     });
   }
 });
@@ -249,18 +266,19 @@ app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
-  console.log('updating waste with id: ', id);
+  logger.info(`attempting to update waste record with id: ${id}`);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
+    logger.error(`invalid mongo id: ${id}`);
     res.status(400).json({ error: 'Invalid ID' });
     return;
   }
 
-  console.log('mongo id is valid, proceed');
+  logger.info(`mongo id, ${id} is valid, proceeding`);
 
   try {
     const updatedWaste = await Waste.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(req.params.id),
+      new mongoose.Types.ObjectId(id),
       {
         ...updates,
         updatedAt: new Date(),
@@ -269,43 +287,47 @@ app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
     );
 
     if (!updatedWaste) {
-      console.log('waste is not found in db');
+      logger.error(`waste record not found in db, id: ${id}`);
       res.status(404).json({ error: 'Waste not found' });
       return;
     }
 
-    console.log('waste updated successfully');
+    logger.info(`waste record updated successfully, id: ${id}`);
 
     res.json({
       message: 'Waste entry updated successfully',
       data: updatedWaste,
     });
   } catch (error) {
-    console.error('Error updating waste entry:', error);
+    logger.error(`error updating waste record: ${(error as Error).message}`);
     res.status(500).json({
       message: 'Error updating waste entry',
-      error: (error as Error).message,
+      error,
     });
   }
 });
 
 app.delete('/api/waste/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  logger.info(`attempting to delete a waste record with id ${id}`);
   try {
-    const result = await Waste.findByIdAndDelete(req.params.id);
+    const result = await Waste.findByIdAndDelete(id);
     if (!result) {
+      logger.error(`waste record not found in db, id: ${id}`);
       res.status(404).json({ message: 'Entry not found' });
       return;
     }
+    logger.info(`waste record deleted successfully, id: ${id}`);
     res.json({ message: 'Entry deleted successfully' });
   } catch (error) {
-    console.error('Error deleting waste entry:', error);
+    logger.error(`error deleting waste record: ${(error as Error).message}`);
     res.status(500).json({
       message: 'Error deleting waste entry',
-      error: (error as Error).message,
+      error,
     });
   }
 });
 
 app.listen(port, host, () => {
-  console.log(`[ ready ] http://${host}:${port}`);
+  logger.info(`app is running on http://${host}:${port}`);
 });
