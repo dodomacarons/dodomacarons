@@ -1,15 +1,15 @@
 services:
   mongo:
-    image: mongo:latest
-    container_name: mongo-local
+    image: mongo:8.0
+    container_name: mongo-dodomacarons
     ports:
-      - "27018:27017"  # Map MongoDB port
+      - "27018:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: dodomacarons
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes:
-      - mongo-data:/data/db  # Persist data even if the container stops
+      - mongo-data:/data/db
 
 volumes:
   mongo-data:
