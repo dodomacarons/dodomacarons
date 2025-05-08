@@ -31,6 +31,7 @@ import { DATE_STRING_FORMAT, REQUIRED_ERROR_TEXT } from '../misc';
 import { ManufacturingWasteReasons } from './ManufacturingWasteReasons';
 import {
   useCreateWasteMutation,
+  useGetReasonsQuery,
   useUpdateWasteMutation,
 } from '../redux/waste.api.slice';
 
@@ -52,6 +53,7 @@ export function WasteForm() {
     useCreateWasteMutation();
   const [updateWaste, { isLoading: isUpdateWasteLoading }] =
     useUpdateWasteMutation();
+  const { data: wasteReasons } = useGetReasonsQuery();
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
 
@@ -64,18 +66,23 @@ export function WasteForm() {
   const wasteIdBeingEdited = useSelector(selectWasteIdBeingEdited);
   const isEditingWaste = !!(wasteBeingEdited && wasteIdBeingEdited);
 
-  const { handleSubmit, formState, reset } = methods;
+  const { handleSubmit, formState, reset, watch, setValue } = methods;
 
   const hasValidationError = useMemo(
     () => Object.keys(formState.errors).length > 0,
-    [formState]
+    [formState],
   );
 
   const onSubmit = async (data: WasteFieldValues) => {
     const response = isEditingWaste
       ? await updateWaste({
           wasteId: wasteIdBeingEdited,
-          updatedWaste: data,
+          updatedWaste: {
+            ...data,
+            manufacturingWasteReason: data.manufacturingWasteReason?.filter(
+              ({ reason }) => !!wasteReasons?.find((r) => r.name === reason),
+            ),
+          },
         })
       : await createWaste(data);
 
@@ -104,7 +111,7 @@ export function WasteForm() {
   }, []);
 
   const selectedFlavor = useSelector<RootState, string | null>(
-    (state) => state.flavor.selectedFlavor
+    (state) => state.flavor.selectedFlavor,
   );
 
   useEffect(() => {
@@ -119,13 +126,13 @@ export function WasteForm() {
     if (wasteBeingEdited !== null) {
       reset({
         manufacturingDate: DateTime.fromISO(
-          wasteBeingEdited.manufacturingDate
+          wasteBeingEdited.manufacturingDate,
         ).toFormat(DATE_STRING_FORMAT),
         releaseDate: DateTime.fromISO(wasteBeingEdited.releaseDate).toFormat(
-          DATE_STRING_FORMAT
+          DATE_STRING_FORMAT,
         ),
         displayDate: DateTime.fromISO(wasteBeingEdited.displayDate).toFormat(
-          DATE_STRING_FORMAT
+          DATE_STRING_FORMAT,
         ),
         flavor: wasteBeingEdited.flavor,
         displayedQuantity: wasteBeingEdited.displayedQuantity,
@@ -139,6 +146,18 @@ export function WasteForm() {
       dispatch(setSelectedFlavor(null));
     }
   }, [wasteIdBeingEdited, wasteBeingEdited, reset, dispatch]);
+
+  const manufacturingWasteQuantity = watch('manufacturingWasteQuantity');
+  const manufacturingWasteReason = watch('manufacturingWasteReason');
+
+  useEffect(() => {
+    if (
+      manufacturingWasteQuantity === 0 &&
+      (manufacturingWasteReason?.length || 0) > 0
+    ) {
+      setValue('manufacturingWasteReason', []);
+    }
+  }, [manufacturingWasteQuantity, manufacturingWasteReason, setValue]);
 
   return (
     <FormProvider {...methods}>

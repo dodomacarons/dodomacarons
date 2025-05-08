@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import {
   Box,
   FormControlLabel,
@@ -8,17 +9,32 @@ import {
   FormLabel,
   Typography,
   FormControl,
+  Button,
+  Stack,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { WasteFieldValues } from '../types';
-import { qualityWasteReasons, visualWasteReasons } from '../data';
+import { ManufacturingWasteReasonAddDialog } from './ManufacturingWasteReasonAddDialog';
+import {
+  useCreateReasonMutation,
+  useGetReasonsQuery,
+} from '../redux/waste.api.slice';
+import { useSnackbar } from 'notistack';
 
-const wasteReasons = [...qualityWasteReasons, ...visualWasteReasons].sort(
-  (a, b) => a.localeCompare(b),
-);
-const numberOfColumns = Math.ceil(wasteReasons.length / 4);
+const numberOfColumns = 4;
 
 export function ManufacturingWasteReasons() {
+  const { enqueueSnackbar } = useSnackbar();
+  const [addDialogOpened, setAddDialogOpened] = useState(false);
+  const [createReason, { isLoading: isCreateReasonLoading }] =
+    useCreateReasonMutation();
+  const { data: wasteReasons } = useGetReasonsQuery();
+  const rowsPerColumn = useMemo(
+    () => Math.ceil((wasteReasons?.length || 0) / numberOfColumns),
+    [wasteReasons],
+  );
+
   const { control, watch, formState } = useFormContext<WasteFieldValues>();
 
   const { fields, append, remove } = useFieldArray<WasteFieldValues>({
@@ -40,46 +56,62 @@ export function ManufacturingWasteReasons() {
     <Box sx={{ mb: 3 }}>
       <FormGroup>
         <FormLabel sx={{ mb: 1 }}>
-          <Typography variant="h6">Problémák</Typography>
+          <Stack direction="row" gap={2} sx={{ alignItems: 'center' }}>
+            <Typography variant="body1">Problémák</Typography>
+            <Button
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={() => setAddDialogOpened(true)}
+            >
+              Új hozzáadása
+            </Button>
+          </Stack>
         </FormLabel>
-        <Grid container sx={{ maxWidth: '760px' }}>
+        <Grid container>
           {new Array(numberOfColumns).fill(1).map((_, i) => (
-            <Grid size={12 / numberOfColumns} key={`reason-column-${i}`}>
-              {wasteReasons.slice(i * 4, i * 4 + 4).map((reason) => (
-                <FormControlLabel
-                  key={reason}
-                  control={
-                    <Controller
-                      name="manufacturingWasteReason"
-                      control={control}
-                      rules={{
-                        validate(value) {
-                          if (
-                            watch('manufacturingWasteQuantity') > 0 &&
-                            !fields.length
-                          ) {
-                            return 'Ha van gyártási selejt, legalább egy értéket kötelező megadni a fent felsorolt problémák közül.';
-                          }
-                          return true;
-                        },
-                      }}
-                      render={({ field }) => (
-                        <Switch
-                          {...field}
-                          checked={
-                            !!fields.find((field) => field.reason === reason) ||
-                            false
-                          }
-                          onChange={(e) =>
-                            handleSwitchChange(reason, e.target.checked)
-                          }
-                        />
-                      )}
-                    />
-                  }
-                  label={reason}
-                />
-              ))}
+            <Grid
+              size={Math.ceil(12 / numberOfColumns)}
+              key={`reason-column-${i}`}
+            >
+              {wasteReasons
+                ?.slice(i * rowsPerColumn, i * rowsPerColumn + rowsPerColumn)
+                .map((reason) => (
+                  <FormControlLabel
+                    sx={{ display: 'flex' }}
+                    key={reason.name}
+                    control={
+                      <Controller
+                        name="manufacturingWasteReason"
+                        control={control}
+                        rules={{
+                          validate(value) {
+                            if (
+                              watch('manufacturingWasteQuantity') > 0 &&
+                              !fields.length
+                            ) {
+                              return 'Ha van gyártási selejt, legalább egy értéket kötelező megadni a fent felsorolt problémák közül.';
+                            }
+                            return true;
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Switch
+                            {...field}
+                            checked={
+                              !!fields.find(
+                                (field) => field.reason === reason.name,
+                              ) || false
+                            }
+                            onChange={(e) =>
+                              handleSwitchChange(reason.name, e.target.checked)
+                            }
+                          />
+                        )}
+                      />
+                    }
+                    label={<Typography noWrap>{reason.name}</Typography>}
+                  />
+                ))}
             </Grid>
           ))}
         </Grid>
@@ -91,6 +123,27 @@ export function ManufacturingWasteReasons() {
           </FormHelperText>
         </FormControl>
       )}
+      <ManufacturingWasteReasonAddDialog
+        open={addDialogOpened}
+        loading={isCreateReasonLoading}
+        onConfirm={async (reason) => {
+          const response = await createReason({ name: reason });
+
+          if (response.error) {
+            enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
+              variant: 'error',
+            });
+          } else {
+            enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
+              variant: 'success',
+            });
+
+            setAddDialogOpened(false);
+            handleSwitchChange(reason, true);
+          }
+        }}
+        onClose={() => setAddDialogOpened(false)}
+      />
     </Box>
   );
 }

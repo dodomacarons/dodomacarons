@@ -21,7 +21,7 @@ export interface WasteApiResponse {
 
 const wasteApi = createApi({
   reducerPath: 'wasteApi',
-  tagTypes: ['Waste'],
+  tagTypes: ['Waste', 'Reason'],
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_WASTE_API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
@@ -150,6 +150,29 @@ const wasteApi = createApi({
       }),
       invalidatesTags: ['Waste'],
     }),
+
+    getReasons: builder.query<{ _id: string; name: string }[], void>({
+      query: () => `reason`,
+      transformResponse: (response: {
+        data: { _id: string; name: string }[];
+      }) => response.data,
+      providesTags: ['Reason'],
+    }),
+
+    createReason: builder.mutation<
+      { name: string; createdAt: string },
+      { name: string }
+    >({
+      query: (newReason) => ({
+        url: 'reason',
+        method: 'POST',
+        body: newReason,
+      }),
+      transformResponse: (response: {
+        data: { name: string; createdAt: string };
+      }) => response.data,
+      invalidatesTags: ['Reason'],
+    }),
   }),
 });
 
@@ -163,5 +186,8 @@ export const {
   useCreateWasteMutation,
   useDeleteWasteMutation,
   useUpdateWasteMutation,
+  useGetReasonsQuery,
+  useLazyGetReasonsQuery,
+  useCreateReasonMutation,
 } = wasteApi;
 export default wasteApi;

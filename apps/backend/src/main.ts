@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { DateTime } from 'luxon';
 import { authMiddleware } from './auth.middleware';
 import logger from './logger';
+import Reason from './schemas/Reason';
 
 const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? +process.env.PORT : 4201;
@@ -387,6 +388,53 @@ app.delete('/api/waste/:id', authMiddleware, async (req, res) => {
     logger.error(`error deleting waste record: ${(error as Error).message}`);
     res.status(500).json({
       message: 'Error deleting waste entry',
+      error,
+    });
+  }
+});
+
+app.get('/api/reason', authMiddleware, async (req, res) => {
+  try {
+    const reasons = await Reason.find()
+      .sort({ name: 1 })
+      .collation({ locale: 'hu' });
+
+    res.status(200).json({
+      message: 'Reasons retrieved successfully',
+      data: reasons,
+    });
+  } catch (error) {
+    logger.error(`error retrieving waste record: ${(error as Error).message}`);
+    res.status(500).json({
+      message: 'Error retrieving waste entry',
+      error,
+    });
+  }
+});
+
+app.post('/api/reason', authMiddleware, async (req, res) => {
+  logger.info('attempting to create a new reason record');
+  try {
+    const { name } = req.body;
+
+    const newReason = new Reason({
+      name,
+    });
+
+    await newReason.save();
+
+    logger.info(`reason record created successfully: ${newReason.name}`);
+
+    res
+      .status(201)
+      .json({ message: 'Reason entry created successfully', data: newReason });
+  } catch (error) {
+    logger.error(
+      `failed to to create a new reason record: ${(error as Error).message}`,
+    );
+
+    res.status(500).json({
+      message: 'Error creating reason entry',
       error,
     });
   }
