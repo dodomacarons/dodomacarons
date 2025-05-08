@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useGetAggregate2Query } from '../redux/waste.api.slice';
-import { Box, FormLabel, Grid2 as Grid, Typography } from '@mui/material';
+import { Box, FormLabel, Grid, Typography } from '@mui/material';
 import { Aggregate2ApiResponse } from '../types';
 import { DATE_STRING_FORMAT } from '../misc';
 import { DatePicker } from '@mui/x-date-pickers';

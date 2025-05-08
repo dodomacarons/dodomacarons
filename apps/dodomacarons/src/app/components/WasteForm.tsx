@@ -7,7 +7,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
 } from '@mui/material';

@@ -5,7 +5,6 @@ import {
   ControllerRenderProps,
 } from 'react-hook-form';
 import {
-  Alert,
   FormControl,
   FormLabel,
   IconButton,
@@ -19,18 +18,40 @@ import { WasteFieldValues } from '../types';
 
 export type NumberInputProps = {
   label: ReactNode;
-} & Omit<ControllerProps<WasteFieldValues, any>, 'render'>;
+} & Omit<
+  ControllerProps<
+    WasteFieldValues,
+    'displayedQuantity' | 'manufacturingWasteQuantity' | 'shippingWasteQuantity'
+  >,
+  'render'
+>;
 
 export function NumberInput(props: NumberInputProps) {
   const handleIncrement = useCallback(
-    (field: ControllerRenderProps<WasteFieldValues, any>, value: number) => {
+    (
+      field: ControllerRenderProps<
+        WasteFieldValues,
+        | 'displayedQuantity'
+        | 'manufacturingWasteQuantity'
+        | 'shippingWasteQuantity'
+      >,
+      value: number
+    ) => {
       field.onChange(value + 1);
     },
     []
   );
 
   const handleDecrement = useCallback(
-    (field: ControllerRenderProps<WasteFieldValues, any>, value: number) => {
+    (
+      field: ControllerRenderProps<
+        WasteFieldValues,
+        | 'displayedQuantity'
+        | 'manufacturingWasteQuantity'
+        | 'shippingWasteQuantity'
+      >,
+      value: number
+    ) => {
       const newValue = Math.max(0, value - 1);
       field.onChange(newValue);
     },

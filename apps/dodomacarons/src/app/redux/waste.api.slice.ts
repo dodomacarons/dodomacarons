@@ -46,7 +46,10 @@ const wasteApi = createApi({
           sortModel ? '&sortModel=' + JSON.stringify(sortModel) : ''
         }${
           Object.keys(restParams).length > 0
-            ? '&' + new URLSearchParams(restParams as any).toString()
+            ? '&' +
+              new URLSearchParams(
+                restParams as Record<string, string>
+              ).toString()
             : ''
         }`,
       transformResponse: (response: WastesApiResponse) => ({

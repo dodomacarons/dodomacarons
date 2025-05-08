@@ -1,7 +1,7 @@
 import express from 'express';
 import { Waste } from './schemas/Waste';
 import cors from 'cors';
-import mongoose from 'mongoose';
+import mongoose, { SortOrder } from 'mongoose';
 import { DateTime } from 'luxon';
 import { authMiddleware } from './auth.middleware';
 
@@ -40,7 +40,10 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
     const sortModel = req.query.sortModel
       ? JSON.parse((req.query.sortModel as string) || '[]')
       : [];
-    const filter: any = {};
+    const filter: {
+      displayDate?: { $gte: Date; $lte: Date };
+      flavor?: string;
+    } = {};
 
     if (displayDate) {
       const start = DateTime.fromISO(displayDate as string)
@@ -53,11 +56,11 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
       filter.displayDate = { $gte: start, $lte: end };
     }
 
-    if (flavor) {
+    if (flavor && typeof flavor === 'string') {
       filter.flavor = flavor;
     }
 
-    const sort: any = {};
+    const sort: Record<string, SortOrder> = {};
     if (Array.isArray(sortModel) && sortModel.length > 0) {
       sortModel.forEach(({ field, sort: direction }) => {
         sort[field] = direction === 'asc' ? 1 : -1;

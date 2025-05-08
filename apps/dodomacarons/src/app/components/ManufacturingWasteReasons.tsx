@@ -1,11 +1,10 @@
 import {
-  Alert,
   Box,
   FormControlLabel,
   FormGroup,
   FormHelperText,
   Switch,
-  Grid2 as Grid,
+  Grid,
   FormLabel,
   Typography,
   FormControl,

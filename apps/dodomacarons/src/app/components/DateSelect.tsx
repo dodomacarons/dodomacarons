@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   FormControl,
   FormLabel,
@@ -22,11 +21,23 @@ import RemoveIcon from '@mui/icons-material/Remove';
 
 export type DateSelectProps = {
   label: ReactNode;
-} & Omit<ControllerProps<WasteFieldValues, any>, 'render'>;
+} & Omit<
+  ControllerProps<
+    WasteFieldValues,
+    'displayDate' | 'manufacturingDate' | 'releaseDate'
+  >,
+  'render'
+>;
 
 export function DateSelect(props: DateSelectProps) {
   const handleIncrement = useCallback(
-    (field: ControllerRenderProps<WasteFieldValues, any>, value: string) => {
+    (
+      field: ControllerRenderProps<
+        WasteFieldValues,
+        'displayDate' | 'manufacturingDate' | 'releaseDate'
+      >,
+      value: string
+    ) => {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
@@ -38,7 +49,13 @@ export function DateSelect(props: DateSelectProps) {
   );
 
   const handleDecrement = useCallback(
-    (field: ControllerRenderProps<WasteFieldValues, any>, value: string) => {
+    (
+      field: ControllerRenderProps<
+        WasteFieldValues,
+        'displayDate' | 'manufacturingDate' | 'releaseDate'
+      >,
+      value: string
+    ) => {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
