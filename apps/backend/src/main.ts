@@ -29,7 +29,7 @@ mongoose
   .catch((err) => console.log('MongoDB connection error:', err));
 
 app.get('/', (req, res) => {
-  return res.send({ message: 'Hello API' });
+  res.send({ message: 'Hello API' });
 });
 
 app.get('/api/waste', authMiddleware, async (req, res) => {
@@ -73,16 +73,14 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
       .sort(sort)
       .limit(pageSize);
 
-    return res.status(200).json({
+    res.status(200).json({
       message: 'Wastes retrieved successfully',
       data: wastes,
       total,
     });
   } catch (error) {
     console.error('Error fetching wastes:', error);
-    return res
-      .status(500)
-      .json({ message: 'Error fetching waste entries', error });
+    res.status(500).json({ message: 'Error fetching waste entries', error });
   }
 });
 
@@ -153,14 +151,12 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
         $sort: { flavor: 1 },
       },
     ]);
-    return res
+    res
       .status(200)
       .json({ message: 'Wastes retrieved successfully', data: result });
   } catch (error) {
     console.error('Error fetching wastes:', error);
-    return res
-      .status(500)
-      .json({ message: 'Error fetching waste entries', error });
+    res.status(500).json({ message: 'Error fetching waste entries', error });
   }
 });
 
@@ -202,14 +198,12 @@ app.get('/api/aggregate2', authMiddleware, async (req, res) => {
         $sort: { manufacturingDate: 1 },
       },
     ]);
-    return res
+    res
       .status(200)
       .json({ message: 'Wastes retrieved successfully', data: result });
   } catch (error) {
     console.error('Error fetching wastes:', error);
-    return res
-      .status(500)
-      .json({ message: 'Error fetching waste entries', error });
+    res.status(500).json({ message: 'Error fetching waste entries', error });
   }
 });
 
@@ -239,12 +233,12 @@ app.post('/api/waste', authMiddleware, async (req, res) => {
 
     await newWaste.save();
 
-    return res
+    res
       .status(201)
       .json({ message: 'Waste entry created successfully', data: newWaste });
   } catch (error) {
     console.error('Error creating waste entry:', error);
-    return res.status(500).json({
+    res.status(500).json({
       message: 'Error creating waste entry',
       error: (error as Error).message,
     });
@@ -258,7 +252,8 @@ app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
   console.log('updating waste with id: ', id);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: 'Invalid ID' });
+    res.status(400).json({ error: 'Invalid ID' });
+    return;
   }
 
   console.log('mongo id is valid, proceed');
@@ -275,18 +270,19 @@ app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
 
     if (!updatedWaste) {
       console.log('waste is not found in db');
-      return res.status(404).json({ error: 'Waste not found' });
+      res.status(404).json({ error: 'Waste not found' });
+      return;
     }
 
     console.log('waste updated successfully');
 
-    return res.json({
+    res.json({
       message: 'Waste entry updated successfully',
       data: updatedWaste,
     });
   } catch (error) {
     console.error('Error updating waste entry:', error);
-    return res.status(500).json({
+    res.status(500).json({
       message: 'Error updating waste entry',
       error: (error as Error).message,
     });
@@ -297,12 +293,13 @@ app.delete('/api/waste/:id', authMiddleware, async (req, res) => {
   try {
     const result = await Waste.findByIdAndDelete(req.params.id);
     if (!result) {
-      return res.status(404).json({ message: 'Entry not found' });
+      res.status(404).json({ message: 'Entry not found' });
+      return;
     }
-    return res.json({ message: 'Entry deleted successfully' });
+    res.json({ message: 'Entry deleted successfully' });
   } catch (error) {
     console.error('Error deleting waste entry:', error);
-    return res.status(500).json({
+    res.status(500).json({
       message: 'Error deleting waste entry',
       error: (error as Error).message,
     });
