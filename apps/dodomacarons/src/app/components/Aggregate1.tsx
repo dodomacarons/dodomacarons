@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridSortModel } from '@mui/x-data-grid';
 import { useGetAggregate1Query } from '../redux/waste.api.slice';
 import { Box, FormLabel, Grid, Typography } from '@mui/material';
 import { Aggregate1ApiResponse } from '../types';
@@ -15,13 +15,21 @@ const defaultDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
 export function Aggregate1Grid() {
   const [dateFrom, setDateFrom] = useState(defaultDateFrom);
   const [dateTo, setDateTo] = useState(defaultDateTo);
-  const {
-    data: aggregate1,
-    isLoading,
-    isFetching,
-  } = useGetAggregate1Query({
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 50,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel | undefined>([
+    {
+      field: 'wasteRatio',
+      sort: 'desc',
+    },
+  ]);
+  const { data, isLoading, isFetching } = useGetAggregate1Query({
     dateFrom,
     dateTo,
+    ...paginationModel,
+    sortModel,
   });
 
   const dateFromValue = useMemo(() => DateTime.fromISO(dateFrom), [dateFrom]);
@@ -66,7 +74,7 @@ export function Aggregate1Grid() {
         </Grid>
       </Grid>
       <DataGrid<Aggregate1ApiResponse>
-        rows={aggregate1 || []}
+        rows={data?.items || []}
         getRowId={(row) => row.flavor}
         loading={isLoading || isFetching}
         columns={[
@@ -97,12 +105,18 @@ export function Aggregate1Grid() {
         ]}
         initialState={{
           sorting: {
-            sortModel: [{ field: 'wasteRatio', sort: 'desc' }],
+            sortModel,
           },
         }}
         disableColumnFilter={true}
-        disableColumnMenu={true}
-        hideFooterPagination={true}
+        disableRowSelectionOnClick={true}
+        sortingMode="server"
+        paginationMode="server"
+        rowCount={data?.total || 0}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        sortModel={sortModel}
+        onSortModelChange={setSortModel}
       />
     </>
   );

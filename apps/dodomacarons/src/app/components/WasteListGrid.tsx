@@ -133,6 +133,7 @@ export function WasteGridList() {
             field: 'edit',
             headerName: 'Szerkesztés',
             width: 120,
+            sortable: false,
             renderCell({ row }) {
               return (
                 <Button
@@ -152,6 +153,7 @@ export function WasteGridList() {
             field: 'delete',
             headerName: 'Törlés',
             width: 120,
+            sortable: false,
             renderCell({ row }) {
               return (
                 <Button

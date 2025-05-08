@@ -36,8 +36,8 @@ const wasteApi = createApi({
     getWastes: builder.query<
       { data: Waste[]; total: number },
       {
-        page?: number;
-        pageSize?: number;
+        page: number;
+        pageSize: number;
         sortModel?: GridSortModel;
       } & Partial<Waste>
     >({
@@ -48,7 +48,7 @@ const wasteApi = createApi({
           Object.keys(restParams).length > 0
             ? '&' +
               new URLSearchParams(
-                restParams as Record<string, string>
+                restParams as Record<string, string>,
               ).toString()
             : ''
         }`,
@@ -60,29 +60,65 @@ const wasteApi = createApi({
     }),
 
     getAggregate1: builder.query<
-      Aggregate1ApiResponse[],
-      { dateFrom: string; dateTo: string }
+      {
+        items: Aggregate1ApiResponse[];
+        total: number;
+      },
+      {
+        dateFrom: string;
+        dateTo: string;
+        page: number;
+        pageSize: number;
+        sortModel?: GridSortModel;
+      }
     >({
-      query: ({ dateFrom, dateTo }) =>
+      query: ({ dateFrom, dateTo, page, pageSize, sortModel }) =>
         `aggregate1?${new URLSearchParams({
           dateFrom,
           dateTo,
+          page: String(page),
+          pageSize: String(pageSize),
+          sortModel: JSON.stringify(sortModel),
         }).toString()}`,
-      transformResponse: (response: { data: Aggregate1ApiResponse[] }) =>
-        response.data,
+      transformResponse: (response: {
+        data: {
+          items: Aggregate1ApiResponse[];
+          total: number;
+        };
+      }) => ({
+        ...response.data,
+      }),
     }),
 
     getAggregate2: builder.query<
-      Aggregate2ApiResponse[],
-      { dateFrom: string; dateTo: string }
+      {
+        items: Aggregate2ApiResponse[];
+        total: number;
+      },
+      {
+        dateFrom: string;
+        dateTo: string;
+        page: number;
+        pageSize: number;
+        sortModel?: GridSortModel;
+      }
     >({
-      query: ({ dateFrom, dateTo }) =>
+      query: ({ dateFrom, dateTo, page, pageSize, sortModel }) =>
         `aggregate2?${new URLSearchParams({
           dateFrom,
           dateTo,
+          page: String(page),
+          pageSize: String(pageSize),
+          sortModel: JSON.stringify(sortModel),
         }).toString()}`,
-      transformResponse: (response: { data: Aggregate2ApiResponse[] }) =>
-        response.data,
+      transformResponse: (response: {
+        data: {
+          items: Aggregate2ApiResponse[];
+          total: number;
+        };
+      }) => ({
+        ...response.data,
+      }),
     }),
 
     createWaste: builder.mutation<Waste, WasteFieldValues>({

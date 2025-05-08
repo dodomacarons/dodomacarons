@@ -35,11 +35,11 @@ export function NumberInput(props: NumberInputProps) {
         | 'manufacturingWasteQuantity'
         | 'shippingWasteQuantity'
       >,
-      value: number
+      value: number,
     ) => {
       field.onChange(value + 1);
     },
-    []
+    [],
   );
 
   const handleDecrement = useCallback(
@@ -50,12 +50,12 @@ export function NumberInput(props: NumberInputProps) {
         | 'manufacturingWasteQuantity'
         | 'shippingWasteQuantity'
       >,
-      value: number
+      value: number,
     ) => {
       const newValue = Math.max(0, value - 1);
       field.onChange(newValue);
     },
-    []
+    [],
   );
 
   return (
@@ -79,6 +79,7 @@ export function NumberInput(props: NumberInputProps) {
                 startAdornment: (
                   <InputAdornment position="start" sx={{ mr: 2 }}>
                     <IconButton
+                      size="large"
                       onClick={() => handleDecrement(field, field.value)}
                       sx={(theme) => ({
                         '&, &:hover': {
@@ -94,8 +95,8 @@ export function NumberInput(props: NumberInputProps) {
                 endAdornment: (
                   <InputAdornment position="end" sx={{ ml: 2 }}>
                     <IconButton
+                      size="large"
                       onClick={() => handleIncrement(field, field.value)}
-                      color="primary"
                       sx={(theme) => ({
                         '&, &:hover': {
                           background: theme.palette.primary.main,

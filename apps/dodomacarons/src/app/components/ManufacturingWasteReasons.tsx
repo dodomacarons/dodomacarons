@@ -13,7 +13,9 @@ import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { WasteFieldValues } from '../types';
 import { qualityWasteReasons, visualWasteReasons } from '../data';
 
-const wasteReasons = [...qualityWasteReasons, ...visualWasteReasons];
+const wasteReasons = [...qualityWasteReasons, ...visualWasteReasons].sort(
+  (a, b) => a.localeCompare(b),
+);
 const numberOfColumns = Math.ceil(wasteReasons.length / 4);
 
 export function ManufacturingWasteReasons() {

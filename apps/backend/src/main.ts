@@ -19,9 +19,9 @@ app.use(
       'http://localhost:4200',
       'https://spiffy-jelly-837cfe.netlify.app',
       'https://dodomacarons.duckdns.org',
-      'https://dodomacarons.onrender.com',
+      'https://dodomacarons2.duckdns.org',
     ],
-  })
+  }),
 );
 
 app.use(express.json());
@@ -31,7 +31,7 @@ app.use(
     stream: {
       write: (message: string) => logger.http(message.trim()),
     },
-  })
+  }),
 );
 
 mongoose
@@ -80,9 +80,10 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
 
     const total = await Waste.countDocuments(filter);
     const wastes = await Waste.find(filter)
-      .skip(page * pageSize)
       .sort(sort)
-      .limit(pageSize);
+      .skip(page * pageSize)
+      .limit(pageSize)
+      .collation({ locale: 'hu' });
 
     res.status(200).json({
       message: 'Wastes retrieved successfully',
@@ -105,6 +106,23 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
       .endOf('day')
       .toJSDate();
 
+    const page = parseInt(req.query.page as string, 10) || 0;
+    const pageSize = parseInt(req.query.pageSize as string, 10) || 50;
+    const sortModel = req.query.sortModel
+      ? JSON.parse((req.query.sortModel as string) || '[]')
+      : [];
+
+    const sort: Record<string, 1 | -1> = {};
+    if (Array.isArray(sortModel) && sortModel.length > 0) {
+      sortModel.forEach(({ field, sort: direction }) => {
+        if (field === 'flavor') {
+          sort['_id'] = direction === 'asc' ? 1 : -1;
+        } else {
+          sort[field] = direction === 'asc' ? 1 : -1;
+        }
+      });
+    }
+
     const result = await Waste.aggregate([
       {
         $match: {
@@ -114,40 +132,30 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
       {
         $group: {
           _id: '$flavor',
-          totalManufacturingWaste: { $sum: '$manufacturingWasteQuantity' },
-          totalShippingWaste: { $sum: '$shippingWasteQuantity' },
           totalDisplayed: { $sum: '$displayedQuantity' },
+          totalWaste: {
+            $sum: {
+              $add: ['$manufacturingWasteQuantity', '$shippingWasteQuantity'],
+            },
+          },
         },
       },
       {
-        $project: {
-          flavor: '$_id',
-          _id: 0,
-          totalManufacturingWaste: 1,
-          totalShippingWaste: 1,
-          totalDisplayed: 1,
-          totalWaste: {
-            $add: ['$totalManufacturingWaste', '$totalShippingWaste'],
-          },
+        $addFields: {
           wasteRatio: {
             $cond: [
-              { $eq: ['$totalDisplayed', 0] },
+              {
+                $or: [
+                  { $eq: ['$totalDisplayed', 0] },
+                  { $eq: ['$totalDisplayed', null] },
+                ],
+              },
               0,
               {
                 $round: [
                   {
                     $multiply: [
-                      {
-                        $divide: [
-                          {
-                            $add: [
-                              '$totalManufacturingWaste',
-                              '$totalShippingWaste',
-                            ],
-                          },
-                          '$totalDisplayed',
-                        ],
-                      },
+                      { $divide: ['$totalWaste', '$totalDisplayed'] },
                       100,
                     ],
                   },
@@ -159,12 +167,37 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
         },
       },
       {
-        $sort: { flavor: 1 },
+        $sort: Object.keys(sort).length > 0 ? sort : { wasteRatio: -1 },
       },
-    ]);
+      {
+        $facet: {
+          items: [
+            { $skip: page * pageSize },
+            { $limit: pageSize },
+            {
+              $project: {
+                _id: 0,
+                flavor: '$_id',
+                totalDisplayed: 1,
+                totalWaste: 1,
+                wasteRatio: 1,
+              },
+            },
+          ],
+          totalCount: [{ $count: 'total' }],
+        },
+      },
+      {
+        $project: {
+          items: 1,
+          total: { $ifNull: [{ $arrayElemAt: ['$totalCount.total', 0] }, 0] },
+        },
+      },
+    ]).collation({ locale: 'hu' });
+
     res
       .status(200)
-      .json({ message: 'Wastes retrieved successfully', data: result });
+      .json({ message: 'Wastes retrieved successfully', data: result[0] });
   } catch (error) {
     logger.error(`error fetching wastes: ${(error as Error).message}`);
     res.status(500).json({ message: 'Error fetching waste entries', error });
@@ -181,6 +214,23 @@ app.get('/api/aggregate2', authMiddleware, async (req, res) => {
       .endOf('day')
       .toJSDate();
 
+    const page = parseInt(req.query.page as string, 10) || 0;
+    const pageSize = parseInt(req.query.pageSize as string, 10) || 50;
+    const sortModel = req.query.sortModel
+      ? JSON.parse((req.query.sortModel as string) || '[]')
+      : [];
+
+    const sort: Record<string, 1 | -1> = {};
+    if (Array.isArray(sortModel) && sortModel.length > 0) {
+      sortModel.forEach(({ field, sort: direction }) => {
+        if (field === 'manufacturingDate') {
+          sort['_id'] = direction === 'asc' ? 1 : -1;
+        } else {
+          sort[field] = direction === 'asc' ? 1 : -1;
+        }
+      });
+    }
+
     const result = await Waste.aggregate([
       {
         $match: {
@@ -190,28 +240,42 @@ app.get('/api/aggregate2', authMiddleware, async (req, res) => {
       {
         $group: {
           _id: '$manufacturingDate',
-          totalManufacturingWaste: { $sum: '$manufacturingWasteQuantity' },
-          totalShippingWaste: { $sum: '$shippingWasteQuantity' },
-        },
-      },
-      {
-        $project: {
-          manufacturingDate: '$_id',
-          _id: 0,
-          totalManufacturingWaste: 1,
-          totalShippingWaste: 1,
           totalWaste: {
-            $add: ['$totalManufacturingWaste', '$totalShippingWaste'],
+            $sum: {
+              $add: ['$manufacturingWasteQuantity', '$shippingWasteQuantity'],
+            },
           },
         },
       },
       {
-        $sort: { manufacturingDate: 1 },
+        $sort: Object.keys(sort).length > 0 ? sort : { manufacturingDate: -1 },
       },
-    ]);
+      {
+        $facet: {
+          items: [
+            { $skip: page * pageSize },
+            { $limit: pageSize },
+            {
+              $project: {
+                manufacturingDate: '$_id',
+                _id: 0,
+                totalWaste: 1,
+              },
+            },
+          ],
+          totalCount: [{ $count: 'total' }],
+        },
+      },
+      {
+        $project: {
+          items: 1,
+          total: { $ifNull: [{ $arrayElemAt: ['$totalCount.total', 0] }, 0] },
+        },
+      },
+    ]).collation({ locale: 'hu' });
     res
       .status(200)
-      .json({ message: 'Wastes retrieved successfully', data: result });
+      .json({ message: 'Wastes retrieved successfully', data: result[0] });
   } catch (error) {
     logger.error(`error fetching wastes: ${(error as Error).message}`);
     res.status(500).json({ message: 'Error fetching waste entries', error });
@@ -252,7 +316,7 @@ app.post('/api/waste', authMiddleware, async (req, res) => {
       .json({ message: 'Waste entry created successfully', data: newWaste });
   } catch (error) {
     logger.error(
-      `failed to to create a new waste record: ${(error as Error).message}`
+      `failed to to create a new waste record: ${(error as Error).message}`,
     );
 
     res.status(500).json({
@@ -283,7 +347,7 @@ app.patch('/api/waste/:id', authMiddleware, async (req, res) => {
         ...updates,
         updatedAt: new Date(),
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedWaste) {

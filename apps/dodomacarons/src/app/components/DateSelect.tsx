@@ -36,16 +36,16 @@ export function DateSelect(props: DateSelectProps) {
         WasteFieldValues,
         'displayDate' | 'manufacturingDate' | 'releaseDate'
       >,
-      value: string
+      value: string,
     ) => {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
       field.onChange?.(
-        dateToChange.plus({ days: 1 }).toFormat(DATE_STRING_FORMAT)
+        dateToChange.plus({ days: 1 }).toFormat(DATE_STRING_FORMAT),
       );
     },
-    []
+    [],
   );
 
   const handleDecrement = useCallback(
@@ -54,16 +54,16 @@ export function DateSelect(props: DateSelectProps) {
         WasteFieldValues,
         'displayDate' | 'manufacturingDate' | 'releaseDate'
       >,
-      value: string
+      value: string,
     ) => {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
       field.onChange?.(
-        dateToChange.minus({ days: 1 }).toFormat(DATE_STRING_FORMAT)
+        dateToChange.minus({ days: 1 }).toFormat(DATE_STRING_FORMAT),
       );
     },
-    []
+    [],
   );
 
   return (
@@ -77,6 +77,7 @@ export function DateSelect(props: DateSelectProps) {
           <Stack direction="row" gap={1} alignItems="center">
             <Box>
               <IconButton
+                size="large"
                 onClick={() => handleDecrement(field, field.value)}
                 sx={(theme) => ({
                   '&, &:hover': {
@@ -113,8 +114,8 @@ export function DateSelect(props: DateSelectProps) {
             />
             <Box>
               <IconButton
+                size="large"
                 onClick={() => handleIncrement(field, field.value)}
-                color="primary"
                 sx={(theme) => ({
                   '&, &:hover': {
                     background: theme.palette.primary.main,
