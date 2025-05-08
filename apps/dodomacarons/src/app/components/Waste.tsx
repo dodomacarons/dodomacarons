@@ -4,9 +4,11 @@ import { WasteGridList } from './WasteListGrid';
 
 export function Waste() {
   return (
-    <Container>
-      <WasteForm />
+    <>
+      <Container>
+        <WasteForm />
+      </Container>
       <WasteGridList />
-    </Container>
+    </>
   );
 }

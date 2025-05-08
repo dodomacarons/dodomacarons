@@ -41,7 +41,7 @@ export function ManufacturingWasteReasons() {
         <FormLabel sx={{ mb: 1 }}>
           <Typography variant="h6">Problémák</Typography>
         </FormLabel>
-        <Grid container>
+        <Grid container sx={{ maxWidth: '760px' }}>
           {new Array(numberOfColumns).fill(1).map((_, i) => (
             <Grid size={12 / numberOfColumns} key={`reason-column-${i}`}>
               {wasteReasons.slice(i * 4, i * 4 + 4).map((reason) => (
