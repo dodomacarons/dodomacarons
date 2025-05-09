@@ -53,15 +53,7 @@ export function NavBarMenu() {
             handleClose();
           }}
         >
-          Statisztika
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            navigate('/statistics2');
-            handleClose();
-          }}
-        >
-          Statisztika 2
+          Statisztikák
         </MenuItem>
         <MenuItem
           onClick={() => {
