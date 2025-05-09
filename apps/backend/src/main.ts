@@ -17,12 +17,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      'http://localhost:4200',
-      'https://spiffy-jelly-837cfe.netlify.app',
-      'https://dodomacarons.duckdns.org',
-      'https://dodomacarons2.duckdns.org',
-    ],
+    origin: ['http://localhost:4200', 'https://dodomacarons.duckdns.org'],
   }),
 );
 
