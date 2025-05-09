@@ -21,7 +21,7 @@ export interface WasteApiResponse {
 
 const wasteApi = createApi({
   reducerPath: 'wasteApi',
-  tagTypes: ['Waste', 'Reason', 'Flavor'],
+  tagTypes: ['Waste', 'Reason', 'Flavor', 'Aggregate1', 'Aggregate2'],
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_WASTE_API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
@@ -88,6 +88,7 @@ const wasteApi = createApi({
       }) => ({
         ...response.data,
       }),
+      providesTags: ['Aggregate1'],
     }),
 
     getAggregate2: builder.query<
@@ -119,6 +120,7 @@ const wasteApi = createApi({
       }) => ({
         ...response.data,
       }),
+      providesTags: ['Aggregate2'],
     }),
 
     createWaste: builder.mutation<Waste, WasteFieldValues>({
@@ -128,7 +130,7 @@ const wasteApi = createApi({
         body: newWaste,
       }),
       transformResponse: (response: WasteApiResponse) => response.data,
-      invalidatesTags: ['Waste'],
+      invalidatesTags: ['Waste', 'Aggregate1', 'Aggregate2'],
     }),
 
     deleteWaste: builder.mutation<void, string>({
@@ -136,7 +138,7 @@ const wasteApi = createApi({
         url: `waste/${wasteId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Waste'],
+      invalidatesTags: ['Waste', 'Aggregate1', 'Aggregate2'],
     }),
 
     updateWaste: builder.mutation<
