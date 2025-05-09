@@ -23,7 +23,14 @@ export function App() {
 
   if (isLoading) {
     return (
-      <Box sx={{ m: 3 }}>
+      <Box
+        sx={{
+          p: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <CircularProgress />
       </Box>
     );

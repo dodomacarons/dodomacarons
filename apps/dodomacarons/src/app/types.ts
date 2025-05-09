@@ -4,7 +4,7 @@ export interface Waste {
   manufacturingDate: string; // gyártás dátuma
   releaseDate: string; // kitárolás dátuma
   displayDate: string; // pultba kerülés dátuma
-  flavor: string; // íz
+  flavor: { _id: string; name: string }; // íz
   displayedQuantity: number; // pultba került mennyiség
   manufacturingWasteQuantity: number; // gyártási selejt mennyisége
   manufacturingWasteReason?: { reason: string }[];

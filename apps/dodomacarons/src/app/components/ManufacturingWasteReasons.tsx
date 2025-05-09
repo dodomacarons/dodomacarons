@@ -99,11 +99,11 @@ export function ManufacturingWasteReasons() {
                             {...field}
                             checked={
                               !!fields.find(
-                                (field) => field.reason === reason.name,
+                                (field) => field.reason === reason._id,
                               ) || false
                             }
                             onChange={(e) =>
-                              handleSwitchChange(reason.name, e.target.checked)
+                              handleSwitchChange(reason._id, e.target.checked)
                             }
                           />
                         )}
@@ -139,7 +139,7 @@ export function ManufacturingWasteReasons() {
             });
 
             setAddDialogOpened(false);
-            handleSwitchChange(reason, true);
+            handleSwitchChange(response.data._id, true);
           }
         }}
         onClose={() => setAddDialogOpened(false)}

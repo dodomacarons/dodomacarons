@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 import {
-  RootState,
+  selectSelectedFlavor,
   selectWasteBeingEdited,
   selectWasteIdBeingEdited,
   setSelectedFlavor,
@@ -80,7 +80,7 @@ export function WasteForm() {
           updatedWaste: {
             ...data,
             manufacturingWasteReason: data.manufacturingWasteReason?.filter(
-              ({ reason }) => !!wasteReasons?.find((r) => r.name === reason),
+              ({ reason }) => !!wasteReasons?.find((r) => r._id === reason),
             ),
           },
         })
@@ -110,13 +110,11 @@ export function WasteForm() {
     setFlavorDialogOpened((prev) => !prev);
   }, []);
 
-  const selectedFlavor = useSelector<RootState, string | null>(
-    (state) => state.flavor.selectedFlavor,
-  );
+  const selectedFlavor = useSelector(selectSelectedFlavor);
 
   useEffect(() => {
-    if (selectedFlavor !== methods.getValues('flavor')) {
-      methods.setValue('flavor', selectedFlavor || '', {
+    if (selectedFlavor?._id !== methods.getValues('flavor')) {
+      methods.setValue('flavor', selectedFlavor?._id || '', {
         shouldValidate: !!selectedFlavor,
       });
     }
@@ -134,7 +132,7 @@ export function WasteForm() {
         displayDate: DateTime.fromISO(wasteBeingEdited.displayDate).toFormat(
           DATE_STRING_FORMAT,
         ),
-        flavor: wasteBeingEdited.flavor,
+        flavor: wasteBeingEdited.flavor._id,
         displayedQuantity: wasteBeingEdited.displayedQuantity,
         manufacturingWasteQuantity: wasteBeingEdited.manufacturingWasteQuantity,
         manufacturingWasteReason: wasteBeingEdited.manufacturingWasteReason,
@@ -192,11 +190,11 @@ export function WasteForm() {
                   <Stack gap={1}>
                     <Button
                       variant="contained"
-                      color="secondary"
+                      color={selectedFlavor ? 'secondary' : 'primary'}
                       onClick={toggleDialogOpened}
                       size="large"
                     >
-                      {selectedFlavor || 'Íz kiválasztása'}
+                      {selectedFlavor?.name || 'Íz kiválasztása'}
                     </Button>
                   </Stack>
 
@@ -211,7 +209,7 @@ export function WasteForm() {
                         <input
                           {...field}
                           type="hidden"
-                          value={selectedFlavor || ''}
+                          value={selectedFlavor?._id || ''}
                         />
 
                         {fieldState.error?.message && (

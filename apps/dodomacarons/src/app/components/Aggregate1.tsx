@@ -78,7 +78,12 @@ export function Aggregate1Grid() {
         getRowId={(row) => row.flavor}
         loading={isLoading || isFetching}
         columns={[
-          { field: 'flavor', headerName: 'Macaron íz', width: 150 },
+          {
+            field: 'flavor.name',
+            headerName: 'Macaron íz',
+            width: 150,
+            valueGetter: (_, row) => row.flavor,
+          },
 
           {
             field: 'totalDisplayed',

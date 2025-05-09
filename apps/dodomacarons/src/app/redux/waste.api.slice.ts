@@ -21,7 +21,7 @@ export interface WasteApiResponse {
 
 const wasteApi = createApi({
   reducerPath: 'wasteApi',
-  tagTypes: ['Waste', 'Reason'],
+  tagTypes: ['Waste', 'Reason', 'Flavor'],
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_WASTE_API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
@@ -39,7 +39,7 @@ const wasteApi = createApi({
         page: number;
         pageSize: number;
         sortModel?: GridSortModel;
-      } & Partial<Waste>
+      } & Partial<Omit<Waste, 'flavor'> & { flavor: string }>
     >({
       query: ({ page = 0, pageSize = 100, sortModel, ...restParams }) =>
         `waste?page=${page}&pageSize=${pageSize}${
@@ -160,7 +160,7 @@ const wasteApi = createApi({
     }),
 
     createReason: builder.mutation<
-      { name: string; createdAt: string },
+      { _id: string; name: string; createdAt: string },
       { name: string }
     >({
       query: (newReason) => ({
@@ -169,9 +169,64 @@ const wasteApi = createApi({
         body: newReason,
       }),
       transformResponse: (response: {
-        data: { name: string; createdAt: string };
+        data: { _id: string; name: string; createdAt: string };
       }) => response.data,
-      invalidatesTags: ['Reason'],
+      onQueryStarted: async (args, { dispatch, queryFulfilled }) => {
+        try {
+          const { data: addedReason } = await queryFulfilled;
+          dispatch(
+            wasteApi.util.updateQueryData(
+              'getReasons',
+              undefined,
+              (draftReasons) => {
+                draftReasons.push(addedReason);
+                draftReasons.sort((a, b) => a.name.localeCompare(b.name));
+              },
+            ),
+          );
+        } catch (error) {
+          console.error('failed to create reason', error);
+        }
+      },
+    }),
+
+    getFlavors: builder.query<{ _id: string; name: string }[], void>({
+      query: () => `flavor`,
+      transformResponse: (response: {
+        data: { _id: string; name: string }[];
+      }) => response.data,
+      providesTags: ['Flavor'],
+    }),
+
+    createFlavor: builder.mutation<
+      { _id: string; name: string; createdAt: string },
+      { name: string }
+    >({
+      query: (newFlavor) => ({
+        url: 'flavor',
+        method: 'POST',
+        body: newFlavor,
+      }),
+      transformResponse: (response: {
+        data: { _id: string; name: string; createdAt: string };
+      }) => response.data,
+      onQueryStarted: async (args, { dispatch, queryFulfilled }) => {
+        try {
+          const { data: addedFlavor } = await queryFulfilled;
+          dispatch(
+            wasteApi.util.updateQueryData(
+              'getFlavors',
+              undefined,
+              (draftFlavors) => {
+                draftFlavors.push(addedFlavor);
+                draftFlavors.sort((a, b) => a.name.localeCompare(b.name));
+              },
+            ),
+          );
+        } catch (error) {
+          console.error('failed to create flavor', error);
+        }
+      },
     }),
   }),
 });
@@ -189,5 +244,8 @@ export const {
   useGetReasonsQuery,
   useLazyGetReasonsQuery,
   useCreateReasonMutation,
+  useGetFlavorsQuery,
+  useLazyGetFlavorsQuery,
+  useCreateFlavorMutation,
 } = wasteApi;
 export default wasteApi;

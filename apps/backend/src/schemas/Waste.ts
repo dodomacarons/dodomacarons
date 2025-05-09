@@ -1,14 +1,14 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IManufacturingWasteReason {
-  reason: string;
+  reason: Types.ObjectId;
 }
 
 export interface IWaste extends Document {
   manufacturingDate: Date;
   releaseDate: Date;
   displayDate: Date;
-  flavor: string;
+  flavor: Types.ObjectId;
   displayedQuantity: number;
   manufacturingWasteQuantity: number;
   manufacturingWasteReason?: IManufacturingWasteReason[];
@@ -20,16 +20,21 @@ export interface IWaste extends Document {
 export const manufacturingWasteReasonSchema =
   new Schema<IManufacturingWasteReason>(
     {
-      reason: { type: String, required: true },
+      reason: { type: Schema.Types.ObjectId, ref: 'Reason', required: true },
     },
-    { _id: false }
+    { _id: false },
   );
 
 export const wasteSchema: Schema<IWaste> = new Schema({
   manufacturingDate: { type: Date, required: true },
   releaseDate: { type: Date, required: true },
   displayDate: { type: Date, required: true, index: true },
-  flavor: { type: String, required: true, index: true },
+  flavor: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    index: true,
+    ref: 'Flavor',
+  },
   displayedQuantity: { type: Number, required: true },
   manufacturingWasteQuantity: { type: Number, required: true },
   manufacturingWasteReason: [manufacturingWasteReasonSchema],

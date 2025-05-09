@@ -1,16 +1,56 @@
-import { Container } from '@mui/material';
+import { Alert, Box, CircularProgress, Container } from '@mui/material';
 import WasteForm from './WasteForm';
 import { WasteGridList } from './WasteListGrid';
-import { useGetReasonsQuery } from '../redux/waste.api.slice';
+import {
+  useGetFlavorsQuery,
+  useGetReasonsQuery,
+} from '../redux/waste.api.slice';
 
 export function Waste() {
-  const { data: reasons } = useGetReasonsQuery();
+  const {
+    isLoading: isLoadingReasons,
+    isFetching: isFetchingReasons,
+    isError: isGettingReasonsError,
+  } = useGetReasonsQuery();
+  const {
+    isLoading: isLoadingFlavors,
+    isFetching: isFetchingFlavors,
+    isError: isGettingFlavorsError,
+  } = useGetFlavorsQuery();
+
+  const loading =
+    isLoadingReasons ||
+    isFetchingReasons ||
+    isLoadingFlavors ||
+    isFetchingFlavors;
+  const isError = isGettingReasonsError || isGettingFlavorsError;
+
+  if (isError) {
+    return (
+      <Box sx={{ p: 4 }}>
+        <Alert severity="error">A szolgáltatás nem elérhető.</Alert>
+      </Box>
+    );
+  }
+
   return (
     <>
-      <Container>
-        <WasteForm />
+      <Container sx={{ height: '100%' }}>
+        {loading && (
+          <Box
+            sx={{
+              p: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+        {!loading && <WasteForm />}
       </Container>
-      <WasteGridList />
+      {!loading && <WasteGridList />}
     </>
   );
 }

@@ -1,3 +1,4 @@
+const { capitalize } = require('@mui/material');
 const { parse } = require('csv-parse/sync');
 const { stringify } = require('csv-stringify/sync');
 const fs = require('fs');
@@ -77,7 +78,7 @@ const flavors = [
   'Artemis macaron',
 ];
 
-const filePath = path.join(process.cwd(), 'waste.csv');
+const filePath = path.join(process.cwd(), './scripts/input/waste.csv');
 const csvData = fs.readFileSync(filePath, 'utf8');
 
 const records = parse(csvData, {
@@ -92,6 +93,78 @@ function tryToParseDate(date) {
     .map((d) => d.trim())
     .join('-');
 }
+
+const reasonBlackList = [
+  'esztétikai probléma',
+  '(nagyon jó)',
+  '(jó)',
+  '(festékváltás)',
+  '7 napig üresen állt a kalap a hűtőben',
+  'töltetlenül 2 napot állt a kalap a hűtőben',
+  'nagyon jó',
+  'jó',
+  'jobb',
+  'jobb (más festék)',
+  'jobb(más festék)',
+  'más festék',
+  'kicsit nedvesebb kalap',
+  '(15 TAD festék)',
+  'jó kalap',
+  '(15 TAD festék) esztétikai probléma',
+  'festékváltás',
+  '(kevesebb festék)',
+];
+const reasonMap = {
+  'leválik a kalap': 'kalap leválik',
+  'elválik a kalap': 'kalap leválik',
+  'leválik a kalp': 'kalap leválik',
+  'éeválik a kalap': 'kalap leválik',
+  'leválik a kalapja': 'kalap leválik',
+  '(kevesebb festék) leválik a kalap': 'kalap leválik',
+  '(15 TAD festék) leválik a kalap': 'kalap leválik',
+  'leesik a kalap': 'kalap leválik',
+  'leesik a kalapja': 'kalap leválik',
+
+  '(jó) száraz': 'száraz',
+
+  '(15 TAD festék) puha': 'puha',
+  ouha: 'puha',
+  '(kevesebb festék) puha': 'puha',
+  '(jó) puha': 'puha',
+
+  'emelt folyadékos kalap - ázós': 'ázós',
+  '(kevesebb festék) ázós': 'ázós',
+  ázik: 'ázós',
+
+  szétmálik: 'mállós',
+  szétmállik: 'mállós',
+
+  'törött 15 db': 'könnyen törik',
+  'kicsit törik': 'könnyen törik',
+
+  repedezett: 'repedt',
+  reped: 'repedt',
+  repdezett: 'repedt',
+
+  kics: 'kicsi',
+};
+const reasons = new Set([
+  'Ázós',
+  'Csunya töltés',
+  'Duci',
+  'Felemás/Ferde',
+  'Kalap leválik',
+  'Kicsapódás',
+  'Kicsi',
+  'Könnyen törik',
+  'Nagy',
+  'Puha',
+  'Ragacsos',
+  'Repedt',
+  'Száraz',
+  'Tömör',
+  'Vékony',
+]);
 
 const mappedRecords = records
   .map((record) => {
@@ -127,27 +200,45 @@ const mappedRecords = records
       flavor = 'Rose macaron';
     }
 
+    const problems = record['problémák']
+      .split(',')
+      .filter((r) => r.trim() !== '-')
+      .flatMap((r) => r.split('/'))
+      .flatMap((r) => r.split('.').map((r) => r.trim()))
+      .map((r) => {
+        let reason = r.trim();
+        if (!reason || reasonBlackList.includes(reason)) {
+          return null;
+        }
+        if (reasonMap[reason]) {
+          reason = reasonMap[reason];
+        }
+        return {
+          reason: capitalize(reason),
+        };
+      })
+      .filter(Boolean);
+
+    problems.forEach(({ reason }) => {
+      reasons.add(reason);
+    });
+
+    const parsedManufacturingWasteQuantity =
+      parseInt(record['selejt db'], 10) || 0;
+
     return {
       flavor,
       displayedQuantity,
-      releaseDate,
-      manufacturingDate,
-      displayDate,
-      shippingWasteQuantity: parseInt(record['selejt db'], 10) || 0,
-      manufacturingWasteQuantity: 0,
-      // manufacturingWasteReason: record['problémák']
-      //   .split(',')
-      //   .filter((r) => r.trim() !== '-')
-      //   .map((r) => {
-      //     const reason = r.trim();
-      //     if (!reason) {
-      //       return null;
-      //     }
-      //     return {
-      //       reason,
-      //     };
-      //   })
-      //   .filter(Boolean),
+      releaseDate: { $date: new Date(releaseDate) },
+      manufacturingDate: { $date: new Date(manufacturingDate) },
+      displayDate: { $date: new Date(displayDate) },
+      shippingWasteQuantity: 0,
+      manufacturingWasteQuantity: parsedManufacturingWasteQuantity,
+      manufacturingWasteReason:
+        problems.length > 0 && parsedManufacturingWasteQuantity > 0
+          ? problems
+          : undefined,
+      createdAt: { $date: new Date('2025-04-30') },
     };
   })
   .filter(Boolean);
@@ -168,7 +259,7 @@ const WasteItemSchema = z.object({
     .array(
       z.object({
         reason: z.string(),
-      })
+      }),
     )
     .optional(),
 });
@@ -189,6 +280,16 @@ const csv = stringify(mappedRecords, {
   columns: Object.keys(mappedRecords[0]), // Optional, but good for consistency
 });
 
-console.log(csv);
+// console.log(csv);
+console.log(mappedRecords);
+// console.log(reasons);
 
-fs.writeFileSync('./import.csv', csv);
+// fs.writeFileSync(path.join(process.cwd(), './scripts/output/import.csv'), csv);
+fs.writeFileSync(
+  path.join(process.cwd(), './scripts/output/import.json'),
+  JSON.stringify(mappedRecords),
+);
+fs.writeFileSync(
+  path.join(process.cwd(), './scripts/output/import-reasons.json'),
+  JSON.stringify([...reasons].map((reason) => ({ name: reason }))),
+);

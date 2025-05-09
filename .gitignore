@@ -47,7 +47,7 @@ test-output
 
 .env
 
-waste.csv
-import.csv
+scripts/**/*.csv
+scripts/**/*.json
 
 logs

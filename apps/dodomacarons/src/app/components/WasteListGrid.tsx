@@ -4,6 +4,7 @@ import { DateTime } from 'luxon';
 import { Waste } from '../types';
 import {
   useDeleteWasteMutation,
+  useGetReasonsQuery,
   useGetWastesQuery,
 } from '../redux/waste.api.slice';
 import { useEffect, useState } from 'react';
@@ -24,7 +25,7 @@ export function WasteGridList() {
   });
   const [sortModel, setSortModel] = useState<GridSortModel | undefined>([
     {
-      field: 'displayDate',
+      field: 'createdAt',
       sort: 'desc',
     },
   ]);
@@ -34,6 +35,7 @@ export function WasteGridList() {
   });
 
   const [deleteWaste, { isLoading: isDeleting }] = useDeleteWasteMutation();
+  const { data: wasteReasons } = useGetReasonsQuery();
 
   const wasteList = data?.data;
 
@@ -50,7 +52,12 @@ export function WasteGridList() {
         getRowId={(row) => row._id}
         loading={isLoading || isFetching}
         columns={[
-          { field: 'flavor', headerName: 'Macaron íz', width: 150 },
+          {
+            field: 'flavor.name',
+            headerName: 'Macaron íz',
+            width: 150,
+            valueGetter: (_, row) => row.flavor.name,
+          },
           {
             field: 'displayedQuantity',
             headerName: 'Darab',
@@ -103,7 +110,19 @@ export function WasteGridList() {
             width: 200,
             valueGetter(reasons?: { reason: string }[]) {
               if (reasons) {
-                return reasons.map(({ reason }) => reason).join(', ');
+                return reasons
+                  .map(({ reason }) => {
+                    const id = reason;
+                    const registeredReason = wasteReasons?.find(
+                      (r) => r._id === id,
+                    );
+                    if (registeredReason) {
+                      return registeredReason.name;
+                    }
+                    return id;
+                  })
+                  .sort((a, b) => a.localeCompare(b))
+                  .join(', ');
               }
               return '';
             },

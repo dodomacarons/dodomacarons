@@ -1,4 +1,7 @@
-export const flavors = [
+const fs = require('fs');
+const path = require('path');
+
+const flavors = [
   'Loulou macaron',
   'Benedict macaron',
   'Petit Prince macaron',
@@ -71,4 +74,22 @@ export const flavors = [
   'Artemis macaron',
   'White Rabbit',
   'Infiniment Cocholat',
-].sort((a, b) => a.localeCompare(b));
+  'Eat me',
+  'Barbara',
+  'Violet',
+];
+
+const parsed = flavors.map((flavor) => ({
+  name: flavor
+    .replace(/macaron/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim(),
+  createdAt: { $date: new Date() },
+}));
+
+console.log(parsed);
+
+fs.writeFileSync(
+  path.join(process.cwd(), './scripts/output/import-flavors.json'),
+  JSON.stringify(parsed),
+);

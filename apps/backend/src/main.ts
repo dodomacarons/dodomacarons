@@ -1,12 +1,13 @@
 import express from 'express';
 import { Waste } from './schemas/Waste';
 import cors from 'cors';
-import mongoose, { SortOrder } from 'mongoose';
+import mongoose from 'mongoose';
 import morgan from 'morgan';
 import { DateTime } from 'luxon';
 import { authMiddleware } from './auth.middleware';
 import logger from './logger';
 import Reason from './schemas/Reason';
+import Flavor from './schemas/Flavor';
 
 const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? +process.env.PORT : 4201;
@@ -54,7 +55,7 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
       : [];
     const filter: {
       displayDate?: { $gte: Date; $lte: Date };
-      flavor?: string;
+      flavor?: mongoose.Types.ObjectId;
     } = {};
 
     if (displayDate) {
@@ -68,11 +69,11 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
       filter.displayDate = { $gte: start, $lte: end };
     }
 
-    if (flavor && typeof flavor === 'string') {
-      filter.flavor = flavor;
+    if (flavor && mongoose.Types.ObjectId.isValid(flavor as string)) {
+      filter.flavor = new mongoose.Types.ObjectId(flavor as string);
     }
 
-    const sort: Record<string, SortOrder> = {};
+    const sort: Record<string, 1 | -1> = {};
     if (Array.isArray(sortModel) && sortModel.length > 0) {
       sortModel.forEach(({ field, sort: direction }) => {
         sort[field] = direction === 'asc' ? 1 : -1;
@@ -80,11 +81,23 @@ app.get('/api/waste', authMiddleware, async (req, res) => {
     }
 
     const total = await Waste.countDocuments(filter);
-    const wastes = await Waste.find(filter)
-      .sort(sort)
-      .skip(page * pageSize)
-      .limit(pageSize)
-      .collation({ locale: 'hu' });
+    const wastes = await Waste.aggregate([
+      { $match: filter },
+
+      {
+        $lookup: {
+          from: 'flavors',
+          localField: 'flavor',
+          foreignField: '_id',
+          as: 'flavor',
+        },
+      },
+      { $unwind: '$flavor' },
+
+      { $sort: Object.keys(sort).length > 0 ? sort : { createdAt: -1 } },
+      { $skip: page * pageSize },
+      { $limit: pageSize },
+    ]).collation({ locale: 'hu' });
 
     res.status(200).json({
       message: 'Wastes retrieved successfully',
@@ -168,6 +181,20 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'flavors',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'flavor',
+        },
+      },
+      {
+        $unwind: {
+          path: '$flavor',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
         $sort: Object.keys(sort).length > 0 ? sort : { wasteRatio: -1 },
       },
       {
@@ -178,7 +205,7 @@ app.get('/api/aggregate1', authMiddleware, async (req, res) => {
             {
               $project: {
                 _id: 0,
-                flavor: '$_id',
+                flavor: '$flavor.name',
                 totalDisplayed: 1,
                 totalWaste: 1,
                 wasteRatio: 1,
@@ -404,9 +431,9 @@ app.get('/api/reason', authMiddleware, async (req, res) => {
       data: reasons,
     });
   } catch (error) {
-    logger.error(`error retrieving waste record: ${(error as Error).message}`);
+    logger.error(`error retrieving reasons: ${(error as Error).message}`);
     res.status(500).json({
-      message: 'Error retrieving waste entry',
+      message: 'Error retrieving reasons',
       error,
     });
   }
@@ -435,6 +462,53 @@ app.post('/api/reason', authMiddleware, async (req, res) => {
 
     res.status(500).json({
       message: 'Error creating reason entry',
+      error,
+    });
+  }
+});
+
+app.get('/api/flavor', authMiddleware, async (req, res) => {
+  try {
+    const flavors = await Flavor.find()
+      .sort({ name: 1 })
+      .collation({ locale: 'hu' });
+
+    res.status(200).json({
+      message: 'Flavors retrieved successfully',
+      data: flavors,
+    });
+  } catch (error) {
+    logger.error(`error retrieving flavors: ${(error as Error).message}`);
+    res.status(500).json({
+      message: 'Error retrieving flavors',
+      error,
+    });
+  }
+});
+
+app.post('/api/flavor', authMiddleware, async (req, res) => {
+  logger.info('attempting to create a new flavor record');
+  try {
+    const { name } = req.body;
+
+    const newFlavor = new Flavor({
+      name,
+    });
+
+    await newFlavor.save();
+
+    logger.info(`flavor record created successfully: ${newFlavor.name}`);
+
+    res
+      .status(201)
+      .json({ message: 'Flavor entry created successfully', data: newFlavor });
+  } catch (error) {
+    logger.error(
+      `failed to to create a new flavor record: ${(error as Error).message}`,
+    );
+
+    res.status(500).json({
+      message: 'Error creating flavor entry',
       error,
     });
   }
