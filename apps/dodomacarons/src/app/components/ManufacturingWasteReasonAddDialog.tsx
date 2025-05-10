@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -9,6 +9,7 @@ import {
   FormControl,
   TextField,
 } from '@mui/material';
+import { useGetReasonsQuery } from '../redux/waste.api.slice';
 
 export function ManufacturingWasteReasonAddDialog({
   onConfirm,
@@ -19,17 +20,34 @@ export function ManufacturingWasteReasonAddDialog({
   onConfirm: (reason: string) => void;
 }) {
   const [reason, setReason] = useState('');
+  const [doesExist, setDoesExist] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: reasons } = useGetReasonsQuery();
+
+  const setFocus = useCallback(() => {
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    });
+  }, [inputRef]);
+
+  const doesReasonExistAlready = useCallback(
+    () =>
+      !!reasons?.find(
+        ({ name }) => name.toLowerCase() === reason.trim().toLowerCase(),
+      ),
+    [reason, reasons],
+  );
 
   useEffect(() => {
     if (props.open) {
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      });
+      setFocus();
+    } else {
+      setReason('');
+      setDoesExist(false);
     }
-  }, [props.open]);
+  }, [props.open, setFocus]);
 
   return (
     <Dialog {...props}>
@@ -42,13 +60,24 @@ export function ManufacturingWasteReasonAddDialog({
             value={reason}
             autoComplete="off"
             inputRef={inputRef}
-            onChange={(e) => setReason(e.target.value)}
+            error={doesExist}
+            helperText={doesExist ? 'Ez a probléma már létezik' : undefined}
+            disabled={loading}
+            onChange={(e) => {
+              setReason(e.target.value);
+              setDoesExist(false);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 if (reason) {
-                  onConfirm?.(reason.trim());
-                  setReason('');
+                  if (doesReasonExistAlready()) {
+                    setDoesExist(true);
+                    setFocus();
+                  } else {
+                    onConfirm?.(reason.trim());
+                    setReason('');
+                  }
                 }
               }
             }}
@@ -59,18 +88,23 @@ export function ManufacturingWasteReasonAddDialog({
         <Button
           onClick={(e) => {
             props.onClose?.(e, 'backdropClick');
-            setReason('');
           }}
         >
           Mégsem
         </Button>
         <Button
+          loadingPosition="start"
           loading={loading}
           variant="contained"
           onClick={() => {
             if (reason) {
-              onConfirm(reason.trim());
-              setReason('');
+              if (doesReasonExistAlready()) {
+                setDoesExist(true);
+                setFocus();
+              } else {
+                onConfirm(reason.trim());
+                setReason('');
+              }
             }
           }}
         >

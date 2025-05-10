@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -9,6 +9,7 @@ import {
   FormControl,
   TextField,
 } from '@mui/material';
+import { useGetFlavorsQuery } from '../redux/waste.api.slice';
 
 export function FlavorAddDialog({
   onConfirm,
@@ -19,17 +20,34 @@ export function FlavorAddDialog({
   onConfirm: (reason: string) => void;
 }) {
   const [flavor, setFlavor] = useState('');
+  const [doesExist, setDoesExist] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: flavors } = useGetFlavorsQuery();
+
+  const setFocus = useCallback(() => {
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    });
+  }, [inputRef]);
+
+  const doesFlavorExistAlready = useCallback(
+    () =>
+      !!flavors?.find(
+        ({ name }) => name.toLowerCase() === flavor.trim().toLowerCase(),
+      ),
+    [flavor, flavors],
+  );
 
   useEffect(() => {
     if (props.open) {
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      });
+      setFocus();
+    } else {
+      setFlavor('');
+      setDoesExist(false);
     }
-  }, [props.open]);
+  }, [props.open, setFocus]);
 
   return (
     <Dialog {...props}>
@@ -42,13 +60,24 @@ export function FlavorAddDialog({
             value={flavor}
             autoComplete="off"
             inputRef={inputRef}
-            onChange={(e) => setFlavor(e.target.value)}
+            error={doesExist}
+            helperText={doesExist ? 'Ez az íz már létezik' : undefined}
+            disabled={loading}
+            onChange={(e) => {
+              setDoesExist(false);
+              setFlavor(e.target.value);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 if (flavor) {
-                  onConfirm?.(flavor.trim());
-                  setFlavor('');
+                  if (doesFlavorExistAlready()) {
+                    setDoesExist(true);
+                    setFocus();
+                  } else {
+                    onConfirm?.(flavor.trim());
+                    setFlavor('');
+                  }
                 }
               }
             }}
@@ -59,18 +88,23 @@ export function FlavorAddDialog({
         <Button
           onClick={(e) => {
             props.onClose?.(e, 'backdropClick');
-            setFlavor('');
           }}
         >
           Mégsem
         </Button>
         <Button
+          loadingPosition="start"
           loading={loading}
           variant="contained"
           onClick={() => {
             if (flavor) {
-              onConfirm(flavor.trim());
-              setFlavor('');
+              if (doesFlavorExistAlready()) {
+                setDoesExist(true);
+                setFocus();
+              } else {
+                onConfirm(flavor.trim());
+                setFlavor('');
+              }
             }
           }}
         >
