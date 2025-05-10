@@ -6,7 +6,7 @@ export interface IFlavor extends Document {
 }
 
 export const flavorSchema: Schema<IFlavor> = new Schema({
-  name: { type: String, required: true, index: true, unique: true },
+  name: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 

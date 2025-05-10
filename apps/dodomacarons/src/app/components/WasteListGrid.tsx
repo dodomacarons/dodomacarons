@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { DataGrid, GridSortModel } from '@mui/x-data-grid';
 import { DateTime } from 'luxon';
 import { Waste } from '../types';
@@ -8,15 +8,15 @@ import {
   useGetWastesQuery,
 } from '../redux/waste.api.slice';
 import { useEffect, useState } from 'react';
-import { useSnackbar } from 'notistack';
 import { WasteDeleteConfirmDialog } from './WasteDeleteConfirmDialog';
 import { useDispatch } from 'react-redux';
 import { setWasteBeingEdited, setWasteIdBeingEdited } from '../redux';
+import { useNotification } from '../hooks/useNotification';
 
 export function WasteGridList() {
   const dispatch = useDispatch();
   const [rowCount, setRowCount] = useState(0);
-  const { enqueueSnackbar } = useSnackbar();
+  const { showError, showSuccess } = useNotification();
   const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
   const [wasteIdBeingDeleted, setWasteIdBeingDeleted] = useState('');
   const [paginationModel, setPaginationModel] = useState({
@@ -161,6 +161,7 @@ export function WasteGridList() {
                   onClick={() => {
                     dispatch(setWasteIdBeingEdited(row._id));
                     dispatch(setWasteBeingEdited(row));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
                   Szerkesztés
@@ -215,15 +216,11 @@ export function WasteGridList() {
           if (wasteIdBeingDeleted) {
             const response = await deleteWaste(wasteIdBeingDeleted);
             if (response.error) {
-              enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
-                variant: 'error',
-              });
+              showError(response.error);
             } else {
               setWasteIdBeingDeleted('');
               setDeleteConfirmOpened(false);
-              enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
-                variant: 'success',
-              });
+              showSuccess();
             }
           }
         }}

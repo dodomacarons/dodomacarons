@@ -38,7 +38,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { WasteFieldValues } from '../types';
 import { FlavorAddDialog } from './FlavorAddDialog';
-import { useSnackbar } from 'notistack';
+import { useNotification } from '../hooks/useNotification';
 
 export type FlavorSelectDialogProps = Omit<DialogProps, 'onClose'> & {
   onClose?: () => void;
@@ -55,7 +55,7 @@ const Transition = forwardRef(function Transition(
 
 export function FlavorSelectDialog(props: FlavorSelectDialogProps) {
   const dispatch = useDispatch();
-  const { enqueueSnackbar } = useSnackbar();
+  const { showError, showSuccess } = useNotification();
   const [addDialogOpened, setAddDialogOpened] = useState(false);
   const [filter, setFilter] = useState('');
   const recentlyUsedFlavors = useSelector(selectRecentlyUsedFlavors);
@@ -245,13 +245,9 @@ export function FlavorSelectDialog(props: FlavorSelectDialogProps) {
         onConfirm={async (flavor) => {
           const response = await createFlavor({ name: flavor });
           if (response.error) {
-            enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
-              variant: 'error',
-            });
+            showError(response.error);
           } else {
-            enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
-              variant: 'success',
-            });
+            showSuccess();
             setAddDialogOpened(false);
           }
         }}

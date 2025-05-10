@@ -6,7 +6,7 @@ export interface IReason extends Document {
 }
 
 export const reasonSchema: Schema<IReason> = new Schema({
-  name: { type: String, required: true, index: true, unique: true },
+  name: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 

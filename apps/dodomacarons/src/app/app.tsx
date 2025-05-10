@@ -14,11 +14,11 @@ import { Routes, Route } from 'react-router-dom';
 import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
-import { RootState } from './redux';
+import { selectToken } from './redux/auth.slice';
 
 export function App() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useSelector(selectToken);
 
   if (isLoading) {
     return (

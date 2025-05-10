@@ -13,8 +13,6 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
-import { useSnackbar } from 'notistack';
-
 import {
   selectSelectedFlavor,
   selectWasteBeingEdited,
@@ -34,6 +32,7 @@ import {
   useGetReasonsQuery,
   useUpdateWasteMutation,
 } from '../redux/waste.api.slice';
+import { useNotification } from '../hooks/useNotification';
 
 const defaultValues: WasteFieldValues = {
   manufacturingDate: '',
@@ -47,7 +46,7 @@ const defaultValues: WasteFieldValues = {
 };
 
 export function WasteForm() {
-  const { enqueueSnackbar } = useSnackbar();
+  const { showError, showSuccess } = useNotification();
   const dispatch = useDispatch();
   const [createWaste, { isLoading: isCreateWasteLoading }] =
     useCreateWasteMutation();
@@ -87,13 +86,9 @@ export function WasteForm() {
       : await createWaste(data);
 
     if (response.error) {
-      enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
-        variant: 'error',
-      });
+      showError(response.error);
     } else {
-      enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
-        variant: 'success',
-      });
+      showSuccess();
 
       if (!isEditingWaste) {
         reset(defaultValues);

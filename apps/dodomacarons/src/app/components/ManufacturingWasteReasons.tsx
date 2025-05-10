@@ -20,12 +20,12 @@ import {
   useCreateReasonMutation,
   useGetReasonsQuery,
 } from '../redux/waste.api.slice';
-import { useSnackbar } from 'notistack';
+import { useNotification } from '../hooks/useNotification';
 
 const numberOfColumns = 4;
 
 export function ManufacturingWasteReasons() {
-  const { enqueueSnackbar } = useSnackbar();
+  const { showError, showSuccess } = useNotification();
   const [addDialogOpened, setAddDialogOpened] = useState(false);
   const [createReason, { isLoading: isCreateReasonLoading }] =
     useCreateReasonMutation();
@@ -130,14 +130,9 @@ export function ManufacturingWasteReasons() {
           const response = await createReason({ name: reason });
 
           if (response.error) {
-            enqueueSnackbar(<Typography>Hiba történt.</Typography>, {
-              variant: 'error',
-            });
+            showError(response.error);
           } else {
-            enqueueSnackbar(<Typography>Sikeres művelet.</Typography>, {
-              variant: 'success',
-            });
-
+            showSuccess();
             setAddDialogOpened(false);
             handleSwitchChange(response.data._id, true);
           }

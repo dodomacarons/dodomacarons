@@ -28,3 +28,16 @@ export function getRedGradient(percentage: number) {
   const lightness = 100 - clampedPercentage * 0.5; // 0% -> 100, 100% -> 50
   return `hsl(0, 100%, ${lightness}%)`;
 }
+
+export function isMongoDuplicateKeyError(error: any) {
+  if (typeof error?.data?.error?.errorResponse?.errmsg === 'string') {
+    if (
+      error.data.error.errorResponse.errmsg.includes(
+        'E11000 duplicate key error',
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
