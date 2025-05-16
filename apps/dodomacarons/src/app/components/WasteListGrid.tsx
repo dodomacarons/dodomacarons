@@ -1,5 +1,6 @@
 import { Button, Grid } from '@mui/material';
-import { DataGrid, GridSortModel } from '@mui/x-data-grid';
+import { GridSortModel } from '@mui/x-data-grid';
+import { DataGrid } from './DataGrid';
 import { DateTime } from 'luxon';
 import { Waste } from '../types';
 import {
@@ -48,9 +49,6 @@ export function WasteGridList() {
   return (
     <Grid container>
       <DataGrid<Waste>
-        rows={wasteList || []}
-        getRowId={(row) => row._id}
-        loading={isLoading || isFetching}
         columns={[
           {
             field: 'flavor.name',
@@ -196,15 +194,14 @@ export function WasteGridList() {
             sortModel,
           },
         }}
+        getRowId={(row) => row._id}
+        rows={wasteList || []}
+        loading={isLoading || isFetching}
         rowCount={rowCount}
         paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        paginationMode="server"
-        disableColumnFilter={true}
-        sortingMode="server"
         sortModel={sortModel}
+        onPaginationModelChange={setPaginationModel}
         onSortModelChange={setSortModel}
-        disableRowSelectionOnClick={true}
       />
       <WasteDeleteConfirmDialog
         open={deleteConfirmOpened}

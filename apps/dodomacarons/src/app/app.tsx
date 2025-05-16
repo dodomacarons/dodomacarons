@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
@@ -65,8 +65,12 @@ export function App() {
     <>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Dodo Macarons
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1, a: { color: 'white', textDecoration: 'none' } }}
+          >
+            <Link to="/">Dodo Macarons</Link>
           </Typography>
           <NavBarMenu />
         </Toolbar>

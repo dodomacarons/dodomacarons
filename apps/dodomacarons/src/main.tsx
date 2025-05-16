@@ -17,14 +17,14 @@ import { App } from './app/app';
 import { Authentication } from './auth';
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById('root') as HTMLElement,
 );
 
 const theme = createTheme(
   {},
   dataGridLocaleHU,
   datePickersLocaleHU,
-  coreLocaleHU
+  coreLocaleHU,
 );
 
 root.render(
@@ -40,6 +40,7 @@ root.render(
               audience: import.meta.env.VITE_AUTH0_IDENTIFIER,
               // prompt: 'consent',
             }}
+            cacheLocation="localstorage"
           >
             <Authentication>
               <PersistGate persistor={persistStore(store)}>
@@ -54,5 +55,5 @@ root.render(
         </Provider>
       </LocalizationProvider>
     </ThemeProvider>
-  </StrictMode>
+  </StrictMode>,
 );

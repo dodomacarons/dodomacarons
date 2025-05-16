@@ -18,6 +18,7 @@ import { WasteFieldValues } from '../types';
 
 export type NumberInputProps = {
   label: ReactNode;
+  id: string;
 } & Omit<
   ControllerProps<
     WasteFieldValues,
@@ -60,7 +61,7 @@ export function NumberInput(props: NumberInputProps) {
 
   return (
     <FormControl fullWidth>
-      <FormLabel sx={{ mb: 2 }}>
+      <FormLabel sx={{ mb: 2 }} htmlFor={props.id}>
         <Typography variant="h5">{props.label}</Typography>
       </FormLabel>
       <Controller
@@ -76,6 +77,7 @@ export function NumberInput(props: NumberInputProps) {
             helperText={fieldState.error?.message}
             slotProps={{
               input: {
+                id: props.id,
                 startAdornment: (
                   <InputAdornment position="start" sx={{ mr: 2 }}>
                     <IconButton

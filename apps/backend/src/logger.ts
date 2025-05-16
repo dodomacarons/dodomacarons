@@ -1,5 +1,11 @@
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports, addColors } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+
+addColors({
+  http: 'magenta',
+  info: 'cyan',
+  error: 'red',
+});
 
 const logFormat = format.combine(
   format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),

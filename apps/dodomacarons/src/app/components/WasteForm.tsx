@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  SyntheticEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { DateTime } from 'luxon';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import {
@@ -101,9 +107,13 @@ export function WasteForm() {
     setFlavorDialogOpened(false);
   }, []);
 
-  const toggleDialogOpened = useCallback(() => {
-    setFlavorDialogOpened((prev) => !prev);
-  }, []);
+  const toggleDialogOpened = useCallback(
+    (e: SyntheticEvent<HTMLButtonElement>) => {
+      e.currentTarget.blur();
+      setFlavorDialogOpened((prev) => !prev);
+    },
+    [],
+  );
 
   const selectedFlavor = useSelector(selectSelectedFlavor);
 
@@ -161,13 +171,14 @@ export function WasteForm() {
             px: 2,
           }}
         >
-          <Grid container spacing={6} sx={{ mb: 3 }}>
+          <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
             <Grid size={12}>
               <Box>
                 <DateSelect
                   label="Pultba kerülés dátuma"
                   name="displayDate"
                   control={methods.control}
+                  id="displayDate"
                   rules={{
                     required: REQUIRED_ERROR_TEXT,
                   }}
@@ -175,13 +186,14 @@ export function WasteForm() {
               </Box>
             </Grid>
           </Grid>
-          <Grid container spacing={6} sx={{ mb: 3 }}>
-            <Grid size={6}>
+          <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
-                <FormControl fullWidth>
-                  <FormLabel sx={{ mb: 2 }}>
-                    <Typography variant="h5">Macaron íz</Typography>
-                  </FormLabel>
+                <FormLabel>
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    Macaron íz
+                  </Typography>
+
                   <Stack gap={1}>
                     <Button
                       variant="contained"
@@ -205,6 +217,7 @@ export function WasteForm() {
                           {...field}
                           type="hidden"
                           value={selectedFlavor?._id || ''}
+                          id="flavor"
                         />
 
                         {fieldState.error?.message && (
@@ -215,15 +228,16 @@ export function WasteForm() {
                       </FormControl>
                     )}
                   />
-                </FormControl>
+                </FormLabel>
               </Box>
             </Grid>
-            <Grid size={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
                 <DateSelect
                   label="Gyártás dátuma"
                   name="manufacturingDate"
                   control={methods.control}
+                  id="manufacturingDate"
                   rules={{
                     required: REQUIRED_ERROR_TEXT,
                   }}
@@ -231,22 +245,24 @@ export function WasteForm() {
               </Box>
             </Grid>
           </Grid>
-          <Grid container spacing={6} sx={{ mb: 3 }}>
-            <Grid size={6}>
+          <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
                 <DateSelect
                   label="Kitárolás dátuma"
                   name="releaseDate"
                   control={methods.control}
+                  id="releaseDate"
                   rules={{
                     required: REQUIRED_ERROR_TEXT,
                   }}
                 />
               </Box>
             </Grid>
-            <Grid size={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
                 <NumberInput
+                  id="displayedQuantity"
                   label="Pultba került mennyiség"
                   name="displayedQuantity"
                   control={methods.control}
@@ -257,10 +273,11 @@ export function WasteForm() {
               </Box>
             </Grid>
           </Grid>
-          <Grid container spacing={6} sx={{ mb: 3 }}>
-            <Grid size={6}>
+          <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
                 <NumberInput
+                  id="manufacturingWasteQuantity"
                   label="Gyártási selejt mennyiség"
                   name="manufacturingWasteQuantity"
                   control={methods.control}
@@ -270,9 +287,10 @@ export function WasteForm() {
                 />
               </Box>
             </Grid>
-            <Grid size={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
                 <NumberInput
+                  id="shippingWasteQuantity"
                   label="Szállítási selejt mennyiség"
                   name="shippingWasteQuantity"
                   control={methods.control}
@@ -285,13 +303,15 @@ export function WasteForm() {
           </Grid>
 
           {methods.watch('manufacturingWasteQuantity') > 0 && (
-            <ManufacturingWasteReasons />
+            <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
+              <ManufacturingWasteReasons />
+            </Grid>
           )}
 
-          <Box>
+          <Grid container spacing={12} sx={{ mb: 3 }}>
             <Stack gap={1}>
               {!isEditingWaste && (
-                <Stack gap={1} direction="row">
+                <Stack gap={1} direction={{ xs: 'column', sm: 'row' }}>
                   <Button
                     loading={isCreateWasteLoading}
                     type="submit"
@@ -304,7 +324,7 @@ export function WasteForm() {
                 </Stack>
               )}
               {isEditingWaste && (
-                <Stack gap={1} direction="row">
+                <Stack gap={1} direction={{ xs: 'column', sm: 'row' }}>
                   <Button
                     loading={isUpdateWasteLoading}
                     type="submit"
@@ -321,6 +341,7 @@ export function WasteForm() {
                     onClick={() => {
                       dispatch(setWasteBeingEdited(null));
                       dispatch(setWasteIdBeingEdited(null));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   >
                     Kilépés szerkesztésből
@@ -333,7 +354,7 @@ export function WasteForm() {
                 </Alert>
               )}
             </Stack>
-          </Box>
+          </Grid>
         </Box>
 
         <FlavorSelectDialog

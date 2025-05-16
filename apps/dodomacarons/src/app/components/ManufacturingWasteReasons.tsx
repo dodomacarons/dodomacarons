@@ -53,7 +53,7 @@ export function ManufacturingWasteReasons() {
   };
 
   return (
-    <Box sx={{ mb: 3 }}>
+    <Box>
       <FormGroup>
         <FormLabel sx={{ mb: 1 }}>
           <Stack direction="row" gap={2} sx={{ alignItems: 'center' }}>
@@ -61,16 +61,19 @@ export function ManufacturingWasteReasons() {
             <Button
               size="small"
               startIcon={<AddIcon />}
-              onClick={() => setAddDialogOpened(true)}
+              onClick={(e) => {
+                e.currentTarget.blur();
+                setAddDialogOpened(true);
+              }}
             >
               Új hozzáadása
             </Button>
           </Stack>
         </FormLabel>
-        <Grid container>
+        <Grid container spacing={{ xs: 3, sm: 6 }}>
           {new Array(numberOfColumns).fill(1).map((_, i) => (
             <Grid
-              size={Math.ceil(12 / numberOfColumns)}
+              size={{ xs: 6, sm: Math.ceil(12 / numberOfColumns) }}
               key={`reason-column-${i}`}
             >
               {wasteReasons

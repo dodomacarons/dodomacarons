@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { DataGrid, GridSortModel } from '@mui/x-data-grid';
+import { GridSortModel } from '@mui/x-data-grid';
 import { useGetAggregate2Query } from '../redux/waste.api.slice';
 import { Box, FormLabel, Grid, Typography } from '@mui/material';
 import { Aggregate2ApiResponse } from '../types';
 import { DATE_STRING_FORMAT } from '../misc';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
+import { DataGrid } from './DataGrid';
 
 const defaultDateFrom = DateTime.local()
   .minus({ months: 3 })
@@ -74,9 +75,6 @@ export function Aggregate2Grid() {
         </Grid>
       </Grid>
       <DataGrid<Aggregate2ApiResponse>
-        rows={data?.items || []}
-        getRowId={(row) => row.manufacturingDate}
-        loading={isLoading || isFetching}
         columns={[
           {
             field: 'manufacturingDate',
@@ -99,10 +97,9 @@ export function Aggregate2Grid() {
             sortModel,
           },
         }}
-        disableColumnFilter={true}
-        disableRowSelectionOnClick={true}
-        sortingMode="server"
-        paginationMode="server"
+        rows={data?.items || []}
+        getRowId={(row) => row.manufacturingDate}
+        loading={isLoading || isFetching}
         rowCount={data?.total || 0}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

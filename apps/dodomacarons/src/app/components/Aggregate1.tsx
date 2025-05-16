@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { DataGrid, GridSortModel } from '@mui/x-data-grid';
+import { GridSortModel } from '@mui/x-data-grid';
 import { useGetAggregate1Query } from '../redux/waste.api.slice';
 import { Box, FormLabel, Grid, Typography } from '@mui/material';
 import { Aggregate1ApiResponse } from '../types';
 import { DATE_STRING_FORMAT, getRedGradient } from '../misc';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
+import { DataGrid } from './DataGrid';
 
 const defaultDateFrom = DateTime.local()
   .minus({ year: 1 })
@@ -74,9 +75,6 @@ export function Aggregate1Grid() {
         </Grid>
       </Grid>
       <DataGrid<Aggregate1ApiResponse>
-        rows={data?.items || []}
-        getRowId={(row) => row.flavor}
-        loading={isLoading || isFetching}
         columns={[
           {
             field: 'flavor.name',
@@ -113,10 +111,9 @@ export function Aggregate1Grid() {
             sortModel,
           },
         }}
-        disableColumnFilter={true}
-        disableRowSelectionOnClick={true}
-        sortingMode="server"
-        paginationMode="server"
+        rows={data?.items || []}
+        getRowId={(row) => row.flavor}
+        loading={isLoading || isFetching}
         rowCount={data?.total || 0}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}

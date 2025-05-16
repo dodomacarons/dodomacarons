@@ -21,6 +21,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 
 export type DateSelectProps = {
   label: ReactNode;
+  id: string;
 } & Omit<
   ControllerProps<
     WasteFieldValues,
@@ -68,7 +69,7 @@ export function DateSelect(props: DateSelectProps) {
 
   return (
     <FormControl fullWidth>
-      <FormLabel sx={{ mb: 2 }}>
+      <FormLabel sx={{ mb: 2 }} htmlFor={props.id}>
         <Typography variant="h5">{props.label}</Typography>
       </FormLabel>
       <Controller
@@ -106,6 +107,7 @@ export function DateSelect(props: DateSelectProps) {
               closeOnSelect
               slotProps={{
                 textField: {
+                  id: props.id,
                   error: !!fieldState?.error,
                   helperText: fieldState.error?.message,
                 },

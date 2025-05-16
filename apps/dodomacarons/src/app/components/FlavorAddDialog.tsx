@@ -14,12 +14,14 @@ import { useGetFlavorsQuery } from '../redux/waste.api.slice';
 export function FlavorAddDialog({
   onConfirm,
   loading,
+  value,
   ...props
 }: DialogProps & {
+  value?: string;
   loading?: boolean;
   onConfirm: (reason: string) => void;
 }) {
-  const [flavor, setFlavor] = useState('');
+  const [flavor, setFlavor] = useState(value || '');
   const [doesExist, setDoesExist] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: flavors } = useGetFlavorsQuery();
@@ -44,13 +46,16 @@ export function FlavorAddDialog({
     if (props.open) {
       setFocus();
     } else {
-      setFlavor('');
       setDoesExist(false);
     }
   }, [props.open, setFocus]);
 
+  useEffect(() => {
+    setFlavor(value || '');
+  }, [value]);
+
   return (
-    <Dialog {...props}>
+    <Dialog {...props} className="flavor-add-dialog">
       <DialogTitle>Új íz hozzáadása</DialogTitle>
       <DialogContent>
         <FormControl fullWidth>
