@@ -53,3 +53,5 @@ scripts/**/*.json
 logs
 
 docker-compose.log
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

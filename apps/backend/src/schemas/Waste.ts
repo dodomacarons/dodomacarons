@@ -15,6 +15,7 @@ export interface IWaste extends Document {
   shippingWasteQuantity: number;
   createdAt: Date;
   updatedAt?: Date | null;
+  comment?: string;
 }
 
 export const manufacturingWasteReasonSchema =
@@ -41,6 +42,7 @@ export const wasteSchema: Schema<IWaste> = new Schema({
   shippingWasteQuantity: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: null },
+  comment: { type: String },
 });
 
 export const Waste = mongoose.model<IWaste>('Waste', wasteSchema);

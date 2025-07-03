@@ -67,15 +67,24 @@ const wasteApi = createApi({
       {
         dateFrom: string;
         dateTo: string;
+        dateFilterField: 'manufacturingDate' | 'displayDate';
         page: number;
         pageSize: number;
         sortModel?: GridSortModel;
       }
     >({
-      query: ({ dateFrom, dateTo, page, pageSize, sortModel }) =>
+      query: ({
+        dateFrom,
+        dateTo,
+        dateFilterField,
+        page,
+        pageSize,
+        sortModel,
+      }) =>
         `aggregate1?${new URLSearchParams({
           dateFrom,
           dateTo,
+          dateFilterField,
           page: String(page),
           pageSize: String(pageSize),
           sortModel: JSON.stringify(sortModel),

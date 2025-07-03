@@ -15,8 +15,11 @@ import {
   FormLabel,
   Grid,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Box } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -49,6 +52,7 @@ const defaultValues: WasteFieldValues = {
   manufacturingWasteQuantity: 0,
   manufacturingWasteReason: [],
   shippingWasteQuantity: 0,
+  comment: '',
 };
 
 export function WasteForm() {
@@ -61,6 +65,7 @@ export function WasteForm() {
   const { data: wasteReasons } = useGetReasonsQuery();
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
+  const [addComment, setAddComment] = useState(false);
 
   const methods = useForm<WasteFieldValues>({
     defaultValues,
@@ -142,8 +147,10 @@ export function WasteForm() {
         manufacturingWasteQuantity: wasteBeingEdited.manufacturingWasteQuantity,
         manufacturingWasteReason: wasteBeingEdited.manufacturingWasteReason,
         shippingWasteQuantity: wasteBeingEdited.shippingWasteQuantity,
+        comment: wasteBeingEdited.comment || '',
       });
       dispatch(setSelectedFlavor(wasteBeingEdited.flavor));
+      setAddComment(!!wasteBeingEdited.comment);
     } else {
       reset(defaultValues);
       dispatch(setSelectedFlavor(null));
@@ -273,7 +280,7 @@ export function WasteForm() {
               </Box>
             </Grid>
           </Grid>
-          <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
+          <Grid container spacing={{ sm: 3, lg: 7 }} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
                 <NumberInput
@@ -303,10 +310,53 @@ export function WasteForm() {
           </Grid>
 
           {methods.watch('manufacturingWasteQuantity') > 0 && (
-            <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
-              <ManufacturingWasteReasons />
-            </Grid>
+            <ManufacturingWasteReasons />
           )}
+
+          <Grid container spacing={12} sx={{ mb: 3 }}>
+            <Stack sx={{ width: '100%' }} gap={1}>
+              <Box>
+                <Button
+                  variant="text"
+                  size="small"
+                  startIcon={addComment ? <DeleteIcon /> : <EditIcon />}
+                  onClick={() => {
+                    if (addComment) {
+                      if (wasteBeingEdited?.comment) {
+                        setValue('comment', '');
+                      }
+                    }
+
+                    setAddComment((prev) => !prev);
+                  }}
+                >
+                  Megjegyzés {addComment ? 'törlése' : 'hozzáfűzése'}
+                </Button>
+              </Box>
+
+              {addComment && (
+                <FormControl fullWidth>
+                  <Controller
+                    name="comment"
+                    control={methods.control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        multiline={true}
+                        maxRows={4}
+                        minRows={4}
+                        slotProps={{
+                          input: {
+                            id: 'comment',
+                          },
+                        }}
+                      />
+                    )}
+                  />
+                </FormControl>
+              )}
+            </Stack>
+          </Grid>
 
           <Grid container spacing={12} sx={{ mb: 3 }}>
             <Stack gap={1}>
@@ -341,6 +391,7 @@ export function WasteForm() {
                     onClick={() => {
                       dispatch(setWasteBeingEdited(null));
                       dispatch(setWasteIdBeingEdited(null));
+                      setAddComment(false);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   >

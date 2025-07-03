@@ -147,6 +147,11 @@ export function WasteGridList() {
             },
           },
           {
+            field: 'comment',
+            headerName: 'Megjegyzés',
+            width: 200,
+          },
+          {
             field: 'edit',
             headerName: 'Szerkesztés',
             width: 120,

@@ -119,7 +119,17 @@ process.on('unhandledRejection', (reason) => {
 
   app.get('/api/aggregate1', async (req, res) => {
     try {
-      const { dateFrom, dateTo } = req.query;
+      const { dateFrom, dateTo, dateFilterField } = req.query;
+
+      if (!dateFilterField) {
+        logger.error('aggregate 1 date filter field is missing.');
+        res
+          .status(500)
+          .json({ message: 'aggregate 1 date filter field is missing.' });
+
+        return;
+      }
+
       const start = DateTime.fromISO(dateFrom as string)
         .startOf('day')
         .toJSDate();
@@ -147,7 +157,7 @@ process.on('unhandledRejection', (reason) => {
       const result = await Waste.aggregate([
         {
           $match: {
-            manufacturingDate: { $gte: start, $lte: end },
+            [dateFilterField as string]: { $gte: start, $lte: end },
           },
         },
         {
@@ -330,6 +340,7 @@ process.on('unhandledRejection', (reason) => {
         manufacturingWasteQuantity,
         manufacturingWasteReason,
         shippingWasteQuantity,
+        comment,
       } = req.body;
 
       const newWaste = new Waste({
@@ -341,6 +352,7 @@ process.on('unhandledRejection', (reason) => {
         manufacturingWasteQuantity,
         manufacturingWasteReason,
         shippingWasteQuantity,
+        comment,
       });
 
       await newWaste.save();

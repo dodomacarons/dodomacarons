@@ -2,16 +2,18 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Waste, WasteFieldValues } from '../types';
 import { RootState } from './store';
 
-type WasteState = {
+export type WasteState = {
   list: WasteFieldValues[];
   wasteIdBeingEdited: string | null;
   wasteBeingEdited: Waste | null;
+  aggregateDateFilterField: 'manufacturingDate' | 'displayDate';
 };
 
-const initialState: WasteState = {
+export const initialState: WasteState = {
   list: [],
   wasteIdBeingEdited: null,
   wasteBeingEdited: null,
+  aggregateDateFilterField: 'manufacturingDate',
 };
 
 export const wasteSlice = createSlice({
@@ -24,6 +26,12 @@ export const wasteSlice = createSlice({
     setWasteBeingEdited: (state, action: PayloadAction<Waste | null>) => {
       state.wasteBeingEdited = action.payload;
     },
+    setAggregateDateFilterField: (
+      state,
+      action: PayloadAction<'manufacturingDate' | 'displayDate'>,
+    ) => {
+      state.aggregateDateFilterField = action.payload;
+    },
   },
 });
 
@@ -31,18 +39,26 @@ export const selectWasteState = (state: RootState): WasteState => state.waste;
 
 export const selectWasteList = createSelector(
   selectWasteState,
-  (waste) => waste.list
+  (waste) => waste.list,
 );
 
 export const selectWasteIdBeingEdited = createSelector(
   selectWasteState,
-  (waste) => waste.wasteIdBeingEdited
+  (waste) => waste.wasteIdBeingEdited,
 );
 
 export const selectWasteBeingEdited = createSelector(
   selectWasteState,
-  (waste) => waste.wasteBeingEdited
+  (waste) => waste.wasteBeingEdited,
 );
 
-export const { setWasteBeingEdited, setWasteIdBeingEdited } =
-  wasteSlice.actions;
+export const selectAggregateDateFilterField = createSelector(
+  selectWasteState,
+  (waste) => waste.aggregateDateFilterField,
+);
+
+export const {
+  setWasteBeingEdited,
+  setWasteIdBeingEdited,
+  setAggregateDateFilterField,
+} = wasteSlice.actions;

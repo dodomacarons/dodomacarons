@@ -11,6 +11,7 @@ export interface Waste {
   shippingWasteQuantity: number; // szállítási selejt mennyisége
   createdAt: string;
   updatedAt: string;
+  comment?: string;
 }
 
 // az űrlap adat típus eltérhet az adatbázistól, ezért külön kezeljük
@@ -26,6 +27,7 @@ export interface WasteFieldValues {
   shippingWasteQuantity: number; // szállítási selejt mennyisége
   createdAt?: string;
   updatedAt?: string;
+  comment?: string;
 }
 
 export interface Aggregate1ApiResponse {

@@ -11,6 +11,8 @@ import {
   FormControl,
   Button,
   Stack,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
@@ -22,9 +24,10 @@ import {
 } from '../redux/waste.api.slice';
 import { useNotification } from '../hooks/useNotification';
 
-const numberOfColumns = 4;
-
 export function ManufacturingWasteReasons() {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const numberOfColumns = isSmallScreen ? 2 : 3;
   const { showError, showSuccess } = useNotification();
   const [addDialogOpened, setAddDialogOpened] = useState(false);
   const [createReason, { isLoading: isCreateReasonLoading }] =
@@ -32,7 +35,7 @@ export function ManufacturingWasteReasons() {
   const { data: wasteReasons } = useGetReasonsQuery();
   const rowsPerColumn = useMemo(
     () => Math.ceil((wasteReasons?.length || 0) / numberOfColumns),
-    [wasteReasons],
+    [numberOfColumns, wasteReasons?.length],
   );
 
   const { control, watch, formState } = useFormContext<WasteFieldValues>();
@@ -53,7 +56,7 @@ export function ManufacturingWasteReasons() {
   };
 
   return (
-    <Box>
+    <Box sx={{ mb: 3 }}>
       <FormGroup>
         <FormLabel sx={{ mb: 1 }}>
           <Stack direction="row" gap={2} sx={{ alignItems: 'center' }}>
@@ -73,7 +76,7 @@ export function ManufacturingWasteReasons() {
         <Grid container spacing={{ xs: 3, sm: 6 }}>
           {new Array(numberOfColumns).fill(1).map((_, i) => (
             <Grid
-              size={{ xs: 6, sm: Math.ceil(12 / numberOfColumns) }}
+              size={Math.ceil(12 / numberOfColumns)}
               key={`reason-column-${i}`}
             >
               {wasteReasons
