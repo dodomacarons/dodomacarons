@@ -161,7 +161,7 @@ export function Aggregate1Grid() {
             },
           },
           {
-            field: 'flavor.name',
+            field: 'flavor.nameCopy',
             headerName: 'Macaron íz',
             width: 150,
             valueGetter: (_, row) => row.flavor,
