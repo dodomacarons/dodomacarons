@@ -154,6 +154,7 @@ export function WasteForm() {
     } else {
       reset(defaultValues);
       dispatch(setSelectedFlavor(null));
+      setAddComment(false);
     }
   }, [wasteIdBeingEdited, wasteBeingEdited, reset, dispatch]);
 
@@ -280,7 +281,7 @@ export function WasteForm() {
               </Box>
             </Grid>
           </Grid>
-          <Grid container spacing={{ sm: 3, lg: 7 }} sx={{ mb: 3 }}>
+          <Grid container spacing={{ xs: 3, sm: 6 }} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Box>
                 <NumberInput

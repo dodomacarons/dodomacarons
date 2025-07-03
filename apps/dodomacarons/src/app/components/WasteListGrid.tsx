@@ -10,8 +10,12 @@ import {
 } from '../redux/waste.api.slice';
 import { useEffect, useState } from 'react';
 import { WasteDeleteConfirmDialog } from './WasteDeleteConfirmDialog';
-import { useDispatch } from 'react-redux';
-import { setWasteBeingEdited, setWasteIdBeingEdited } from '../redux';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectWasteIdBeingEdited,
+  setWasteBeingEdited,
+  setWasteIdBeingEdited,
+} from '../redux';
 import { useNotification } from '../hooks/useNotification';
 
 export function WasteGridList() {
@@ -20,6 +24,7 @@ export function WasteGridList() {
   const { showError, showSuccess } = useNotification();
   const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
   const [wasteIdBeingDeleted, setWasteIdBeingDeleted] = useState('');
+  const wasteIdBeingEdited = useSelector(selectWasteIdBeingEdited);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 25,
@@ -220,6 +225,11 @@ export function WasteGridList() {
             if (response.error) {
               showError(response.error);
             } else {
+              if (wasteIdBeingDeleted === wasteIdBeingEdited) {
+                dispatch(setWasteIdBeingEdited(null));
+                dispatch(setWasteBeingEdited(null));
+              }
+
               setWasteIdBeingDeleted('');
               setDeleteConfirmOpened(false);
               showSuccess();
