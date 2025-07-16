@@ -19,8 +19,6 @@
     "@mui/x-date-pickers": "^8.2.0",
     "@reduxjs/toolkit": "^2.8.1",
     "cors": "^2.8.5",
-    "csv-parse": "^5.6.0",
-    "csv-stringify": "^6.5.2",
     "express": "^5.1.0",
     "express-jwt": "^8.5.1",
     "jwks-rsa": "^3.2.0",
@@ -35,8 +33,7 @@
     "react-router-dom": "^7.5.3",
     "redux-persist": "^6.0.0",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0",
-    "zod": "^3.24.4"
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",
