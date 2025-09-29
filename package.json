@@ -23,7 +23,7 @@
     "express-jwt": "^8.5.1",
     "jwks-rsa": "^3.2.0",
     "luxon": "^3.6.0",
-    "mongoose": "^8.14.1",
+    "mongoose": "^8.18.3",
     "morgan": "^1.10.0",
     "notistack": "^3.0.2",
     "react": "^19.1.0",
