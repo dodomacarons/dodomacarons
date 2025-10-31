@@ -7,6 +7,7 @@ import { DATE_STRING_FORMAT } from '../misc';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import { DataGrid } from './DataGrid';
+import { useAssertRtkError } from '../hooks/useAssertRtkError';
 
 const defaultDateFrom = DateTime.local()
   .minus({ months: 3 })
@@ -26,7 +27,7 @@ export function Aggregate2Grid() {
       sort: 'desc',
     },
   ]);
-  const { data, isLoading, isFetching } = useGetAggregate2Query({
+  const { data, isLoading, isFetching, error: getAggregate2Error } = useGetAggregate2Query({
     dateFrom,
     dateTo,
     ...paginationModel,
@@ -35,6 +36,8 @@ export function Aggregate2Grid() {
 
   const dateFromValue = useMemo(() => DateTime.fromISO(dateFrom), [dateFrom]);
   const dateToValue = useMemo(() => DateTime.fromISO(dateTo), [dateTo]);
+
+  useAssertRtkError(getAggregate2Error);
 
   return (
     <>

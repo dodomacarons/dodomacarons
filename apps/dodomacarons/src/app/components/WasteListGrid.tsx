@@ -17,6 +17,7 @@ import {
   setWasteIdBeingEdited,
 } from '../redux';
 import { useNotification } from '../hooks/useNotification';
+import { useAssertRtkError } from '../hooks/useAssertRtkError';
 
 export function WasteGridList() {
   const dispatch = useDispatch();
@@ -35,7 +36,7 @@ export function WasteGridList() {
       sort: 'desc',
     },
   ]);
-  const { data, isLoading, isFetching } = useGetWastesQuery({
+  const { data, isLoading, isFetching, error: getWastesError } = useGetWastesQuery({
     ...paginationModel,
     sortModel,
   });
@@ -50,6 +51,9 @@ export function WasteGridList() {
       setRowCount(data.total || 0);
     }
   }, [data?.total]);
+
+
+  useAssertRtkError(getWastesError);
 
   return (
     <Grid container>

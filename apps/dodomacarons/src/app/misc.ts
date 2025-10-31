@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon';
 import { Waste, WasteFieldValues } from './types';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
 export const DATE_STRING_FORMAT = 'yyyy-MM-dd';
 
@@ -40,4 +42,18 @@ export function isMongoDuplicateKeyError(error: any) {
     }
   }
   return false;
+}
+
+export function isFetchBaseQueryError(error?: FetchBaseQueryError | SerializedError): error is FetchBaseQueryError {
+  return !!error && 'status' in error && ('data' in error || ('error' in error && !error.data));
+}
+
+export function assertRtkQueryError(error?: FetchBaseQueryError | SerializedError) {
+  if (isFetchBaseQueryError(error)) {
+    if (typeof error.status !== 'number') {
+      throw new Error(`${error.status}: ${error.error}`);
+    } else {
+      throw new Error(`${error.status}: ${(error.data as any)?.message}`);
+    }
+  }
 }

@@ -1,37 +1,36 @@
-import { Alert, Box, CircularProgress, Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 import WasteForm from './WasteForm';
 import { WasteGridList } from './WasteListGrid';
 import {
   useGetFlavorsQuery,
   useGetReasonsQuery,
 } from '../redux/waste.api.slice';
+import { useAssertRtkError } from '../hooks/useAssertRtkError';
 
 export function Waste() {
   const {
     isLoading: isLoadingReasons,
     isFetching: isFetchingReasons,
-    isError: isGettingReasonsError,
+    error: getReasonsError
   } = useGetReasonsQuery();
+
   const {
     isLoading: isLoadingFlavors,
     isFetching: isFetchingFlavors,
-    isError: isGettingFlavorsError,
+    error: getFlavorsError
   } = useGetFlavorsQuery();
+
+
+  useAssertRtkError(getReasonsError);
+  useAssertRtkError(getFlavorsError);
+
+  const hasError = !!(getReasonsError || getFlavorsError);
 
   const loading =
     isLoadingReasons ||
     isFetchingReasons ||
     isLoadingFlavors ||
     isFetchingFlavors;
-  const isError = isGettingReasonsError || isGettingFlavorsError;
-
-  if (isError) {
-    return (
-      <Box sx={{ p: 4 }}>
-        <Alert severity="error">A szolgáltatás nem elérhető.</Alert>
-      </Box>
-    );
-  }
 
   return (
     <>
@@ -48,9 +47,9 @@ export function Waste() {
             <CircularProgress />
           </Box>
         )}
-        {!loading && <WasteForm />}
+        {!loading && !hasError && <WasteForm />}
       </Container>
-      {!loading && <WasteGridList />}
+      {!loading && !hasError && <WasteGridList />}
     </>
   );
 }

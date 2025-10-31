@@ -113,7 +113,7 @@ process.on('unhandledRejection', (reason) => {
       });
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}'`);
-      res.status(500).json({ message: 'Error fetching waste entries', error });
+      res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
     }
   });
 
@@ -245,7 +245,7 @@ process.on('unhandledRejection', (reason) => {
         .json({ message: 'Wastes retrieved successfully', data: result[0] });
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}`);
-      res.status(500).json({ message: 'Error fetching waste entries', error });
+      res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
     }
   });
 
@@ -324,7 +324,7 @@ process.on('unhandledRejection', (reason) => {
         .json({ message: 'Wastes retrieved successfully', data: result[0] });
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}`);
-      res.status(500).json({ message: 'Error fetching waste entries', error });
+      res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
     }
   });
 
@@ -453,7 +453,7 @@ process.on('unhandledRejection', (reason) => {
     } catch (error) {
       logger.error(`error retrieving reasons: ${(error as Error).message}`);
       res.status(500).json({
-        message: 'Error retrieving reasons',
+        message: `Error retrieving reasons: ${(error as Error).message}`,
         error,
       });
     }
@@ -501,7 +501,7 @@ process.on('unhandledRejection', (reason) => {
     } catch (error) {
       logger.error(`error retrieving flavors: ${(error as Error).message}`);
       res.status(500).json({
-        message: 'Error retrieving flavors',
+        message: `Error retrieving flavors: ${(error as Error).message}`,
         error,
       });
     }

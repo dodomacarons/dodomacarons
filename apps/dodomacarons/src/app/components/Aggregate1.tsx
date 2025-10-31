@@ -12,6 +12,7 @@ import {
   selectAggregateDateFilterField,
   setAggregateDateFilterField,
 } from '../redux';
+import { useAssertRtkError } from '../hooks/useAssertRtkError';
 
 const defaultDateFrom = DateTime.local()
   .minus({ year: 1 })
@@ -40,7 +41,7 @@ export function Aggregate1Grid() {
       sort: 'desc',
     },
   ]);
-  const { data, isLoading, isFetching } = useGetAggregate1Query({
+  const { data, isLoading, isFetching, error: getAggregate1Error } = useGetAggregate1Query({
     dateFrom,
     dateTo,
     dateFilterField,
@@ -50,6 +51,8 @@ export function Aggregate1Grid() {
 
   const dateFromValue = useMemo(() => DateTime.fromISO(dateFrom), [dateFrom]);
   const dateToValue = useMemo(() => DateTime.fromISO(dateTo), [dateTo]);
+
+  useAssertRtkError(getAggregate1Error);
 
   return (
     <>

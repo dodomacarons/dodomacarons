@@ -15,6 +15,8 @@ import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
 import { selectToken } from './redux/auth.slice';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { ErrorFallback } from './components/ErrorFallback';
 
 export function App() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
@@ -62,7 +64,7 @@ export function App() {
   }
 
   return (
-    <>
+    <ErrorBoundary fallback={(props) => <ErrorFallback {...props} />}>
       <AppBar position="static">
         <Toolbar>
           <Typography
@@ -79,6 +81,6 @@ export function App() {
         <Route path="/" element={<Waste />} />
         <Route path="/statistics" element={<Statistics />} />
       </Routes>
-    </>
+    </ErrorBoundary>
   );
 }
