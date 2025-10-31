@@ -76,7 +76,7 @@ export function WasteForm() {
   const wasteIdBeingEdited = useSelector(selectWasteIdBeingEdited);
   const isEditingWaste = !!(wasteBeingEdited && wasteIdBeingEdited);
 
-  const { handleSubmit, formState, reset, watch, setValue } = methods;
+  const { handleSubmit, formState, reset, watch, setValue, getValues } = methods;
 
   const hasValidationError = useMemo(
     () => Object.keys(formState.errors).length > 0,
@@ -123,12 +123,12 @@ export function WasteForm() {
   const selectedFlavor = useSelector(selectSelectedFlavor);
 
   useEffect(() => {
-    if (selectedFlavor?._id !== methods.getValues('flavor')) {
-      methods.setValue('flavor', selectedFlavor?._id || '', {
+    if (selectedFlavor?._id !== getValues('flavor')) {
+      setValue('flavor', selectedFlavor?._id || '', {
         shouldValidate: !!selectedFlavor,
       });
     }
-  }, [methods, selectedFlavor]);
+  }, [selectedFlavor, setValue, getValues]);
 
   useEffect(() => {
     if (wasteBeingEdited !== null) {
@@ -248,6 +248,11 @@ export function WasteForm() {
                   id="manufacturingDate"
                   rules={{
                     required: REQUIRED_ERROR_TEXT,
+                  }}
+                  onChange={(newValue) => {
+                    if (newValue && !wasteBeingEdited) {
+                      setValue('releaseDate', newValue);
+                    }
                   }}
                 />
               </Box>

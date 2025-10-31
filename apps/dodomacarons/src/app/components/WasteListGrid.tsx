@@ -161,6 +161,12 @@ export function WasteGridList() {
             width: 200,
           },
           {
+            field: 'flavor.nameCopy',
+            headerName: 'Macaron íz',
+            width: 150,
+            valueGetter: (_, row) => row.flavor.name,
+          },
+          {
             field: 'edit',
             headerName: 'Szerkesztés',
             width: 120,

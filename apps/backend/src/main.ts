@@ -83,7 +83,11 @@ process.on('unhandledRejection', (reason) => {
       const sort: Record<string, 1 | -1> = {};
       if (Array.isArray(sortModel) && sortModel.length > 0) {
         sortModel.forEach(({ field, sort: direction }) => {
-          sort[field] = direction === 'asc' ? 1 : -1;
+          if (field === 'flavor.nameCopy') {
+            sort['flavor.name'] = direction === 'asc' ? 1 : -1;
+          } else {
+            sort[field] = direction === 'asc' ? 1 : -1;
+          }
         });
       }
 

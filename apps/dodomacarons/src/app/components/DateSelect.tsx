@@ -22,6 +22,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 export type DateSelectProps = {
   label: ReactNode;
   id: string;
+  onChange?: (newDate: string | null) => void
 } & Omit<
   ControllerProps<
     WasteFieldValues,
@@ -42,11 +43,11 @@ export function DateSelect(props: DateSelectProps) {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
-      field.onChange?.(
-        dateToChange.plus({ days: 1 }).toFormat(DATE_STRING_FORMAT),
-      );
+      const newValue = dateToChange.plus({ days: 1 }).toFormat(DATE_STRING_FORMAT);
+      field.onChange?.(newValue);
+      props.onChange?.(newValue);
     },
-    [],
+    [props],
   );
 
   const handleDecrement = useCallback(
@@ -60,11 +61,11 @@ export function DateSelect(props: DateSelectProps) {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
-      field.onChange?.(
-        dateToChange.minus({ days: 1 }).toFormat(DATE_STRING_FORMAT),
-      );
+      const newValue = dateToChange.minus({ days: 1 }).toFormat(DATE_STRING_FORMAT);
+      field.onChange?.(newValue);
+      props.onChange?.(newValue);
     },
-    [],
+    [props],
   );
 
   return (
@@ -99,9 +100,11 @@ export function DateSelect(props: DateSelectProps) {
               }
               onChange={(date) => {
                 if (date) {
-                  field.onChange(date.toFormat(DATE_STRING_FORMAT));
+                  field.onChange?.(date.toFormat(DATE_STRING_FORMAT));
+                  props.onChange?.(date.toFormat(DATE_STRING_FORMAT));
                 } else {
-                  field.onChange(null);
+                  field.onChange?.(null);
+                  props.onChange?.(null);
                 }
               }}
               closeOnSelect

@@ -134,8 +134,8 @@ export function FlavorSelectDialog({
 
           reset({
             ...getValues(),
-            releaseDate: converted.releaseDate,
             manufacturingDate: converted.manufacturingDate,
+            releaseDate: converted.releaseDate,
           });
         }
 
