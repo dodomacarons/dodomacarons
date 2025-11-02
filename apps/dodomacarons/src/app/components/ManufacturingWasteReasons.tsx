@@ -16,8 +16,8 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
-import { WasteFieldValues } from '../types';
 import { ManufacturingWasteReasonAddDialog } from './ManufacturingWasteReasonAddDialog';
+import { WasteFieldValues } from '../types';
 import {
   useCreateReasonMutation,
   useGetReasonsQuery,
