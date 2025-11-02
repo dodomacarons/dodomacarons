@@ -9,6 +9,7 @@ import {
   useGetWastesQuery,
 } from '../redux/waste.api.slice';
 import { useEffect, useState } from 'react';
+import { EProductType } from '../types';
 import { WasteDeleteConfirmDialog } from './WasteDeleteConfirmDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -19,7 +20,7 @@ import {
 import { useNotification } from '../hooks/useNotification';
 import { useAssertRtkError } from '../hooks/useAssertRtkError';
 
-export function WasteGridList() {
+export function WasteGridList({ productType }: { productType?: string }) {
   const dispatch = useDispatch();
   const [rowCount, setRowCount] = useState(0);
   const { showError, showSuccess } = useNotification();
@@ -39,10 +40,11 @@ export function WasteGridList() {
   const { data, isLoading, isFetching, error: getWastesError } = useGetWastesQuery({
     ...paginationModel,
     sortModel,
+    productType: productType as EProductType,
   });
 
   const [deleteWaste, { isLoading: isDeleting }] = useDeleteWasteMutation();
-  const { data: wasteReasons } = useGetReasonsQuery();
+  const { data: wasteReasons } = useGetReasonsQuery({ productType: productType || '' });
 
   const wasteList = data?.data;
 
@@ -61,7 +63,7 @@ export function WasteGridList() {
         columns={[
           {
             field: 'flavor.name',
-            headerName: 'Macaron íz',
+            headerName: 'íz',
             width: 150,
             valueGetter: (_, row) => row.flavor.name,
           },
@@ -162,7 +164,7 @@ export function WasteGridList() {
           },
           {
             field: 'flavor.nameCopy',
-            headerName: 'Macaron íz',
+            headerName: 'íz',
             width: 150,
             valueGetter: (_, row) => row.flavor.name,
           },

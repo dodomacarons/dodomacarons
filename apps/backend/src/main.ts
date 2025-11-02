@@ -6,7 +6,7 @@ import { UnauthorizedError } from 'express-jwt';
 import { DateTime } from 'luxon';
 import logger from './logger';
 import { authMiddleware } from './auth.middleware';
-import { Reason, Flavor, Waste } from './schemas';
+import { Reason, Flavor, Waste, EProductType } from './schemas';
 
 process.on('uncaughtException', (error) => {
   logger.error('uncaught Exception:', error);
@@ -54,7 +54,7 @@ process.on('unhandledRejection', (reason) => {
 
   app.get('/api/waste', async (req, res) => {
     try {
-      const { displayDate, flavor } = req.query;
+      const { displayDate, flavor, productType } = req.query;
       const page = parseInt(req.query.page as string, 10) || 0;
       const pageSize = parseInt(req.query.pageSize as string, 10) || 100;
       const sortModel = req.query.sortModel
@@ -63,6 +63,7 @@ process.on('unhandledRejection', (reason) => {
       const filter: {
         displayDate?: { $gte: Date; $lte: Date };
         flavor?: mongoose.Types.ObjectId;
+        productType?: string;
       } = {};
 
       if (displayDate) {
@@ -78,6 +79,17 @@ process.on('unhandledRejection', (reason) => {
 
       if (flavor && mongoose.Types.ObjectId.isValid(flavor as string)) {
         filter.flavor = new mongoose.Types.ObjectId(flavor as string);
+      }
+
+      if (productType) {
+        if (
+          typeof productType === 'string' &&
+          Object.values(EProductType).includes(productType as EProductType)
+        ) {
+          filter.productType = productType as string;
+        } else {
+          throw new Error('Invalid product type');
+        }
       }
 
       const sort: Record<string, 1 | -1> = {};
@@ -123,7 +135,11 @@ process.on('unhandledRejection', (reason) => {
 
   app.get('/api/aggregate1', async (req, res) => {
     try {
-      const { dateFrom, dateTo, dateFilterField } = req.query;
+      const { dateFrom, dateTo, dateFilterField, productType = EProductType.MACARON } = req.query;
+
+      if (!Object.values(EProductType).includes(productType as EProductType)) {
+        throw new Error('Invalid product type');
+      }
 
       if (!dateFilterField) {
         logger.error('aggregate 1 date filter field is missing.');
@@ -162,6 +178,7 @@ process.on('unhandledRejection', (reason) => {
         {
           $match: {
             [dateFilterField as string]: { $gte: start, $lte: end },
+            productType
           },
         },
         {
@@ -255,7 +272,12 @@ process.on('unhandledRejection', (reason) => {
 
   app.get('/api/aggregate2', async (req, res) => {
     try {
-      const { dateFrom, dateTo } = req.query;
+      const { dateFrom, dateTo, productType = EProductType.MACARON } = req.query;
+
+      if (!Object.values(EProductType).includes(productType as EProductType)) {
+        throw new Error('Invalid product type');
+      }
+
       const start = DateTime.fromISO(dateFrom as string)
         .startOf('day')
         .toJSDate();
@@ -284,6 +306,7 @@ process.on('unhandledRejection', (reason) => {
         {
           $match: {
             manufacturingDate: { $gte: start, $lte: end },
+            productType,
           },
         },
         {
@@ -345,7 +368,14 @@ process.on('unhandledRejection', (reason) => {
         manufacturingWasteReason,
         shippingWasteQuantity,
         comment,
+        productType,
       } = req.body;
+
+      if (!Object.values(EProductType).includes(productType)) {
+        logger.error(`invalid product type provided: ${productType}`);
+        res.status(400).json({ message: 'Invalid product type' });
+        return;
+      }
 
       const newWaste = new Waste({
         manufacturingDate,
@@ -357,6 +387,7 @@ process.on('unhandledRejection', (reason) => {
         manufacturingWasteReason,
         shippingWasteQuantity,
         comment,
+        productType
       });
 
       await newWaste.save();
@@ -446,7 +477,8 @@ process.on('unhandledRejection', (reason) => {
 
   app.get('/api/reason', async (req, res) => {
     try {
-      const reasons = await Reason.find()
+      const { productType } = req.query;
+      const reasons = await Reason.find({ productType })
         .sort({ name: 1 })
         .collation({ locale: 'hu' });
 
@@ -466,15 +498,16 @@ process.on('unhandledRejection', (reason) => {
   app.post('/api/reason', async (req, res) => {
     logger.info('attempting to create a new reason record');
     try {
-      const { name } = req.body;
+      const { name, productType } = req.body;
 
       const newReason = new Reason({
         name,
+        productType,
       });
 
       await newReason.save();
 
-      logger.info(`reason record created successfully: ${newReason.name}`);
+      logger.info(`${productType} reason record created successfully: ${newReason.name}`);
 
       res.status(201).json({
         message: 'Reason entry created successfully',
@@ -494,7 +527,8 @@ process.on('unhandledRejection', (reason) => {
 
   app.get('/api/flavor', async (req, res) => {
     try {
-      const flavors = await Flavor.find()
+      const { productType } = req.query;
+      const flavors = await Flavor.find({ productType })
         .sort({ name: 1 })
         .collation({ locale: 'hu' });
 
@@ -514,15 +548,16 @@ process.on('unhandledRejection', (reason) => {
   app.post('/api/flavor', async (req, res) => {
     logger.info('attempting to create a new flavor record');
     try {
-      const { name } = req.body;
+      const { name, productType } = req.body;
 
       const newFlavor = new Flavor({
         name,
+        productType
       });
 
       await newFlavor.save();
 
-      logger.info(`flavor record created successfully: ${newFlavor.name}`);
+      logger.info(`${productType} flavor record created successfully: ${newFlavor.name}`);
 
       res.status(201).json({
         message: 'Flavor entry created successfully',

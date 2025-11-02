@@ -1,6 +1,5 @@
 import { Avatar, Box, Menu, MenuItem } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
-import { blue } from '@mui/material/colors';
 import { useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +22,7 @@ export function NavBarMenu() {
   return (
     <Box>
       <Avatar
-        sx={{ background: blue[300], cursor: 'pointer' }}
+        sx={{ color: 'primary.main', background: 'white', cursor: 'pointer' }}
         onClick={handleClick}
       >
         <PersonIcon />

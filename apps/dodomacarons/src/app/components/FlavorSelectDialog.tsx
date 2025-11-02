@@ -43,12 +43,13 @@ import {
   convertWasteApiResponseToFormFieldValues,
 } from '../misc';
 import { useFormContext } from 'react-hook-form';
-import { WasteFieldValues } from '../types';
+import { EProductType, WasteFieldValues } from '../types';
 import { FlavorAddDialog } from './FlavorAddDialog';
 import { useNotification } from '../hooks/useNotification';
 
 export type FlavorSelectDialogProps = Omit<DialogProps, 'onClose'> & {
   onClose?: () => void;
+  productType?: string;
 };
 
 const Transition = forwardRef(function Transition(
@@ -62,6 +63,7 @@ const Transition = forwardRef(function Transition(
 
 export function FlavorSelectDialog({
   open,
+  productType = '',
   ...props
 }: FlavorSelectDialogProps) {
   const dispatch = useDispatch();
@@ -70,7 +72,7 @@ export function FlavorSelectDialog({
   const [filter, setFilter] = useState('');
   const [offerAdd, setOfferAdd] = useState(false);
   const recentlyUsedFlavors = useSelector(selectRecentlyUsedFlavors);
-  const { data: flavors } = useGetFlavorsQuery();
+  const { data: flavors } = useGetFlavorsQuery({ productType });
   const [createFlavor, { isLoading: isCreateFlavorLoading }] =
     useCreateFlavorMutation();
   const filteredFavours = useMemo(
@@ -123,6 +125,7 @@ export function FlavorSelectDialog({
         displayDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
         page: 0,
         pageSize: 1,
+        productType: productType as EProductType,
       });
 
       if (!response.error && response.data) {
@@ -143,7 +146,7 @@ export function FlavorSelectDialog({
         handleDialogClose();
       }
     },
-    [dispatch, getValues, getWastes, handleDialogClose, reset],
+    [dispatch, getValues, getWastes, handleDialogClose, productType, reset],
   );
 
   const manageOffer = useCallback(() => {
@@ -292,9 +295,10 @@ export function FlavorSelectDialog({
       <FlavorAddDialog
         open={addDialogOpened}
         value={offerAdd ? filter.trim() : ''}
+        productType={productType}
         loading={isCreateFlavorLoading}
         onConfirm={async (flavor) => {
-          const response = await createFlavor({ name: flavor });
+          const response = await createFlavor({ name: flavor, productType: productType });
           if (response.error) {
             showError(response.error);
           } else {

@@ -19,7 +19,7 @@ const defaultDateFrom = DateTime.local()
   .toFormat(DATE_STRING_FORMAT);
 const defaultDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
 
-export function Aggregate1Grid() {
+export function Aggregate1Grid({ productType = '' }: { productType?: string }) {
   const dispatch = useDispatch();
   const [dateFrom, setDateFrom] = useState(defaultDateFrom);
   const [dateTo, setDateTo] = useState(defaultDateTo);
@@ -47,6 +47,7 @@ export function Aggregate1Grid() {
     dateFilterField,
     ...paginationModel,
     sortModel,
+    productType,
   });
 
   const dateFromValue = useMemo(() => DateTime.fromISO(dateFrom), [dateFrom]);
@@ -136,7 +137,7 @@ export function Aggregate1Grid() {
         columns={[
           {
             field: 'flavor.name',
-            headerName: 'Macaron íz',
+            headerName: 'íz',
             width: 150,
             valueGetter: (_, row) => row.flavor,
           },
@@ -165,7 +166,7 @@ export function Aggregate1Grid() {
           },
           {
             field: 'flavor.nameCopy',
-            headerName: 'Macaron íz',
+            headerName: 'íz',
             width: 150,
             valueGetter: (_, row) => row.flavor,
           },

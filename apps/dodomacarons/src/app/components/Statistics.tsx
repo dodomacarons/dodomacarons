@@ -1,9 +1,12 @@
-import { ReactNode, SyntheticEvent, useState } from 'react';
+import { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { Aggregate1Grid } from './Aggregate1';
 import { Aggregate2Grid } from './Aggregate2';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { setSelectedProductType } from '../redux/productType.slice';
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -35,7 +38,13 @@ function a11yProps(index: number) {
 }
 
 export function Statistics() {
+  const dispatch = useDispatch();
+  const { productType } = useParams();
   const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    dispatch(setSelectedProductType(productType || null));
+  }, [productType, dispatch]);
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -54,10 +63,10 @@ export function Statistics() {
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
-        <Aggregate1Grid />
+        <Aggregate1Grid productType={productType} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <Aggregate2Grid />
+        <Aggregate2Grid productType={productType} />
       </CustomTabPanel>
     </Box>
   );

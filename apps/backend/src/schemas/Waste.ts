@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
+export enum EProductType {
+  MACARON = 'macaron',
+  MIGNON = 'mignon',
+}
+
 export interface IManufacturingWasteReason {
   reason: Types.ObjectId;
 }
@@ -16,6 +21,7 @@ export interface IWaste extends Document {
   createdAt: Date;
   updatedAt?: Date | null;
   comment?: string;
+  productType: EProductType;
 }
 
 export const manufacturingWasteReasonSchema =
@@ -43,6 +49,7 @@ export const wasteSchema: Schema<IWaste> = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: null },
   comment: { type: String },
+  productType: { type: String, enum: Object.values(EProductType), required: true }
 });
 
 export const Waste = mongoose.model<IWaste>('Waste', wasteSchema);

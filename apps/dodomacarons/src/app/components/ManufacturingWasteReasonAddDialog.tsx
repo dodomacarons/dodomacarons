@@ -14,15 +14,17 @@ import { useGetReasonsQuery } from '../redux/waste.api.slice';
 export function ManufacturingWasteReasonAddDialog({
   onConfirm,
   loading,
+  productType = '',
   ...props
 }: DialogProps & {
   loading?: boolean;
+  productType?: string;
   onConfirm: (reason: string) => void;
 }) {
   const [reason, setReason] = useState('');
   const [doesExist, setDoesExist] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: reasons } = useGetReasonsQuery();
+  const { data: reasons } = useGetReasonsQuery({ productType });
 
   const setFocus = useCallback(() => {
     setTimeout(() => {

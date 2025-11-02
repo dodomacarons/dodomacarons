@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {
   Aggregate1ApiResponse,
   Aggregate2ApiResponse,
+  EProductType,
   Waste,
   WasteFieldValues,
 } from '../types';
@@ -68,6 +69,7 @@ const wasteApi = createApi({
         dateFrom: string;
         dateTo: string;
         dateFilterField: 'manufacturingDate' | 'displayDate';
+        productType: string;
         page: number;
         pageSize: number;
         sortModel?: GridSortModel;
@@ -77,6 +79,7 @@ const wasteApi = createApi({
         dateFrom,
         dateTo,
         dateFilterField,
+        productType,
         page,
         pageSize,
         sortModel,
@@ -85,6 +88,7 @@ const wasteApi = createApi({
           dateFrom,
           dateTo,
           dateFilterField,
+          productType,
           page: String(page),
           pageSize: String(pageSize),
           sortModel: JSON.stringify(sortModel),
@@ -108,15 +112,17 @@ const wasteApi = createApi({
       {
         dateFrom: string;
         dateTo: string;
+        productType: string;
         page: number;
         pageSize: number;
         sortModel?: GridSortModel;
       }
     >({
-      query: ({ dateFrom, dateTo, page, pageSize, sortModel }) =>
+      query: ({ dateFrom, dateTo, productType, page, pageSize, sortModel }) =>
         `aggregate2?${new URLSearchParams({
           dateFrom,
           dateTo,
+          productType,
           page: String(page),
           pageSize: String(pageSize),
           sortModel: JSON.stringify(sortModel),
@@ -162,17 +168,17 @@ const wasteApi = createApi({
       invalidatesTags: ['Waste'],
     }),
 
-    getReasons: builder.query<{ _id: string; name: string }[], void>({
-      query: () => `reason`,
+    getReasons: builder.query<{ _id: string; name: string }[], { productType: string }>({
+      query: ({ productType }) => `reason?productType=${productType}`,
       transformResponse: (response: {
-        data: { _id: string; name: string }[];
+        data: { _id: string; name: string, productType: EProductType }[];
       }) => response.data,
       providesTags: ['Reason'],
     }),
 
     createReason: builder.mutation<
       { _id: string; name: string; createdAt: string },
-      { name: string }
+      { name: string, productType: string }
     >({
       query: (newReason) => ({
         url: 'reason',
@@ -180,15 +186,15 @@ const wasteApi = createApi({
         body: newReason,
       }),
       transformResponse: (response: {
-        data: { _id: string; name: string; createdAt: string };
+        data: { _id: string; name: string; createdAt: string, productType: EProductType };
       }) => response.data,
-      onQueryStarted: async (args, { dispatch, queryFulfilled }) => {
+      onQueryStarted: async ({ productType }, { dispatch, queryFulfilled }) => {
         try {
           const { data: addedReason } = await queryFulfilled;
           dispatch(
             wasteApi.util.updateQueryData(
               'getReasons',
-              undefined,
+              { productType },
               (draftReasons) => {
                 draftReasons.push(addedReason);
                 draftReasons.sort((a, b) => a.name.localeCompare(b.name));
@@ -201,17 +207,17 @@ const wasteApi = createApi({
       },
     }),
 
-    getFlavors: builder.query<{ _id: string; name: string }[], void>({
-      query: () => `flavor`,
+    getFlavors: builder.query<{ _id: string; name: string }[], { productType: string }>({
+      query: ({ productType }) => `flavor?productType=${productType}`,
       transformResponse: (response: {
-        data: { _id: string; name: string }[];
+        data: { _id: string; name: string, productType: EProductType }[];
       }) => response.data,
       providesTags: ['Flavor'],
     }),
 
     createFlavor: builder.mutation<
       { _id: string; name: string; createdAt: string },
-      { name: string }
+      { name: string, productType: string }
     >({
       query: (newFlavor) => ({
         url: 'flavor',
@@ -219,15 +225,15 @@ const wasteApi = createApi({
         body: newFlavor,
       }),
       transformResponse: (response: {
-        data: { _id: string; name: string; createdAt: string };
+        data: { _id: string; name: string; createdAt: string, productType: EProductType };
       }) => response.data,
-      onQueryStarted: async (args, { dispatch, queryFulfilled }) => {
+      onQueryStarted: async ({ productType }, { dispatch, queryFulfilled }) => {
         try {
           const { data: addedFlavor } = await queryFulfilled;
           dispatch(
             wasteApi.util.updateQueryData(
               'getFlavors',
-              undefined,
+              { productType },
               (draftFlavors) => {
                 draftFlavors.push(addedFlavor);
                 draftFlavors.sort((a, b) => a.name.localeCompare(b.name));

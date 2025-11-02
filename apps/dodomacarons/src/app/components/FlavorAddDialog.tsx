@@ -15,16 +15,18 @@ export function FlavorAddDialog({
   onConfirm,
   loading,
   value,
+  productType = '',
   ...props
 }: DialogProps & {
   value?: string;
   loading?: boolean;
+  productType?: string;
   onConfirm: (reason: string) => void;
 }) {
   const [flavor, setFlavor] = useState(value || '');
   const [doesExist, setDoesExist] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: flavors } = useGetFlavorsQuery();
+  const { data: flavors } = useGetFlavorsQuery({ productType: productType });
 
   const setFocus = useCallback(() => {
     setTimeout(() => {

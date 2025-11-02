@@ -1,3 +1,8 @@
+export enum EProductType {
+  MACARON = 'macaron',
+  MIGNON = 'mignon',
+}
+
 // adattípus, adatbázis sémának megfelelően
 export interface Waste {
   _id: string;
@@ -12,6 +17,7 @@ export interface Waste {
   createdAt: string;
   updatedAt: string;
   comment?: string;
+  productType: EProductType;
 }
 
 // az űrlap adat típus eltérhet az adatbázistól, ezért külön kezeljük
@@ -28,6 +34,7 @@ export interface WasteFieldValues {
   createdAt?: string;
   updatedAt?: string;
   comment?: string;
+  productType?: EProductType;
 }
 
 export interface Aggregate1ApiResponse {

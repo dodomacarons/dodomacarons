@@ -24,7 +24,7 @@ import {
 } from '../redux/waste.api.slice';
 import { useNotification } from '../hooks/useNotification';
 
-export function ManufacturingWasteReasons() {
+export function ManufacturingWasteReasons({ productType = '' }: { productType?: string }) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const numberOfColumns = isSmallScreen ? 2 : 3;
@@ -32,7 +32,7 @@ export function ManufacturingWasteReasons() {
   const [addDialogOpened, setAddDialogOpened] = useState(false);
   const [createReason, { isLoading: isCreateReasonLoading }] =
     useCreateReasonMutation();
-  const { data: wasteReasons } = useGetReasonsQuery();
+  const { data: wasteReasons } = useGetReasonsQuery({ productType });
   const rowsPerColumn = useMemo(
     () => Math.ceil((wasteReasons?.length || 0) / numberOfColumns),
     [numberOfColumns, wasteReasons?.length],
@@ -132,8 +132,9 @@ export function ManufacturingWasteReasons() {
       <ManufacturingWasteReasonAddDialog
         open={addDialogOpened}
         loading={isCreateReasonLoading}
+        productType={productType}
         onConfirm={async (reason) => {
-          const response = await createReason({ name: reason });
+          const response = await createReason({ name: reason, productType });
 
           if (response.error) {
             showError(response.error);

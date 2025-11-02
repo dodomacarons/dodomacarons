@@ -30,7 +30,7 @@ import {
   setWasteBeingEdited,
   setWasteIdBeingEdited,
 } from '../redux';
-import { WasteFieldValues } from '../types';
+import { WasteFieldValues, EProductType } from '../types';
 import { FlavorSelectDialog } from './FlavorSelectDialog';
 import { NumberInput } from './NumberInput';
 import { DateSelect } from './DateSelect';
@@ -55,14 +55,14 @@ const defaultValues: WasteFieldValues = {
   comment: '',
 };
 
-export function WasteForm() {
+export function WasteForm({ productType }: { productType?: string }) {
   const { showError, showSuccess } = useNotification();
   const dispatch = useDispatch();
   const [createWaste, { isLoading: isCreateWasteLoading }] =
     useCreateWasteMutation();
   const [updateWaste, { isLoading: isUpdateWasteLoading }] =
     useUpdateWasteMutation();
-  const { data: wasteReasons } = useGetReasonsQuery();
+  const { data: wasteReasons } = useGetReasonsQuery({ productType: productType || '' });
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
   const [addComment, setAddComment] = useState(false);
@@ -94,7 +94,7 @@ export function WasteForm() {
             ),
           },
         })
-      : await createWaste(data);
+    : await createWaste({ ...data, productType: (productType as EProductType) || EProductType.MACARON });
 
     if (response.error) {
       showError(response.error);
@@ -170,6 +170,16 @@ export function WasteForm() {
     }
   }, [manufacturingWasteQuantity, manufacturingWasteReason, setValue]);
 
+  useEffect(() => {
+    if (productType) {
+      dispatch(setWasteBeingEdited(null));
+      dispatch(setWasteIdBeingEdited(null));
+      dispatch(setSelectedFlavor(null));
+      setAddComment(false);
+      reset(defaultValues);
+    }
+  }, [productType, reset, dispatch]);
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -199,7 +209,7 @@ export function WasteForm() {
               <Box>
                 <FormLabel>
                   <Typography variant="h5" sx={{ mb: 2 }}>
-                    Macaron íz
+                    íz
                   </Typography>
 
                   <Stack gap={1}>
@@ -316,7 +326,7 @@ export function WasteForm() {
           </Grid>
 
           {methods.watch('manufacturingWasteQuantity') > 0 && (
-            <ManufacturingWasteReasons />
+            <ManufacturingWasteReasons productType={productType} />
           )}
 
           <Grid container spacing={12} sx={{ mb: 3 }}>
@@ -415,6 +425,7 @@ export function WasteForm() {
         </Box>
 
         <FlavorSelectDialog
+          productType={productType}
           open={flavorDialogOpened}
           onClose={handleDialogClose}
         />

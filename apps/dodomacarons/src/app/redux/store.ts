@@ -22,6 +22,7 @@ import {
 } from './waste.slice';
 import wasteApi from './waste.api.slice';
 import { authSlice } from './auth.slice';
+import { productTypeSlice } from './productType.slice';
 
 type PersistedFlavorState = Pick<FlavorState, 'recentlyUsedFlavors'>;
 type PersistedDateFilterDateState = Pick<
@@ -69,6 +70,7 @@ const rootReducer = combineReducers({
   [authSlice.name]: authSlice.reducer,
   [flavorSlice.name]: flavorSlice.reducer,
   [wasteSlice.name]: wasteSlice.reducer,
+  [productTypeSlice.name]: productTypeSlice.reducer,
   [wasteApi.reducerPath]: wasteApi.reducer,
 });
 

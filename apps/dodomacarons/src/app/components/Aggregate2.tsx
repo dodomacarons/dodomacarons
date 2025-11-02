@@ -14,7 +14,7 @@ const defaultDateFrom = DateTime.local()
   .toFormat(DATE_STRING_FORMAT);
 const defaultDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
 
-export function Aggregate2Grid() {
+export function Aggregate2Grid({ productType = '' }: { productType?: string }) {
   const [dateFrom, setDateFrom] = useState(defaultDateFrom);
   const [dateTo, setDateTo] = useState(defaultDateTo);
   const [paginationModel, setPaginationModel] = useState({
@@ -32,6 +32,7 @@ export function Aggregate2Grid() {
     dateTo,
     ...paginationModel,
     sortModel,
+    productType,
   });
 
   const dateFromValue = useMemo(() => DateTime.fromISO(dateFrom), [dateFrom]);
