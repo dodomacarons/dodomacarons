@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",
-    "@eslint/js": "^9.26.0",
+    "@eslint/js": "^9.39.0",
     "@nx/esbuild": "22.0.2",
     "@nx/eslint": "22.0.2",
     "@nx/eslint-plugin": "22.0.2",
