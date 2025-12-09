@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
@@ -9,6 +10,11 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import { store } from './app/redux';
 import { App } from './app/app';
 import { Authentication } from './auth';
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  sendDefaultPii: true
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,

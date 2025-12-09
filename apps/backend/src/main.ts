@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -8,14 +9,21 @@ import logger from './logger';
 import { authMiddleware } from './auth.middleware';
 import { Reason, Flavor, Waste, EProductType } from './schemas';
 
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  sendDefaultPii: true,
+});
+
 process.on('uncaughtException', (error) => {
   logger.error('uncaught Exception:', error);
+  Sentry.captureException(error);
   logger.info('exiting');
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason) => {
   logger.error('unhandled Rejection:', reason);
+  Sentry.captureException(reason);
   logger.info('exiting');
   process.exit(1);
 });
@@ -48,6 +56,7 @@ process.on('unhandledRejection', (reason) => {
     logger.info('MongoDB connected');
   } catch (error) {
     logger.error(`MongoDB connection error: ${error}`);
+    Sentry.captureException(error);
   }
 
   app.use(authMiddleware);
@@ -129,6 +138,7 @@ process.on('unhandledRejection', (reason) => {
       });
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}'`);
+      Sentry.captureException(error);
       res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
     }
   });
@@ -142,10 +152,12 @@ process.on('unhandledRejection', (reason) => {
       }
 
       if (!dateFilterField) {
-        logger.error('aggregate 1 date filter field is missing.');
+        const msg = 'aggregate 1 date filter field is missing.'
+        logger.error(msg);
+        Sentry.captureException(new Error(msg));
         res
           .status(500)
-          .json({ message: 'aggregate 1 date filter field is missing.' });
+          .json({ message: msg });
 
         return;
       }
@@ -266,6 +278,7 @@ process.on('unhandledRejection', (reason) => {
         .json({ message: 'Wastes retrieved successfully', data: result[0] });
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}`);
+      Sentry.captureException(error);
       res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
     }
   });
@@ -351,6 +364,7 @@ process.on('unhandledRejection', (reason) => {
         .json({ message: 'Wastes retrieved successfully', data: result[0] });
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}`);
+      Sentry.captureException(error);
       res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
     }
   });
@@ -372,8 +386,10 @@ process.on('unhandledRejection', (reason) => {
       } = req.body;
 
       if (!Object.values(EProductType).includes(productType)) {
-        logger.error(`invalid product type provided: ${productType}`);
-        res.status(400).json({ message: 'Invalid product type' });
+        const msg = `invalid product type provided: ${productType}`;
+        logger.error(msg);
+        Sentry.captureException(new Error(msg));
+        res.status(400).json({ message: msg });
         return;
       }
 
@@ -401,7 +417,7 @@ process.on('unhandledRejection', (reason) => {
       logger.error(
         `failed to to create a new waste record: ${(error as Error).message}`,
       );
-
+      Sentry.captureException(error);
       res.status(500).json({
         message: 'Error creating waste entry',
         error,
@@ -416,8 +432,10 @@ process.on('unhandledRejection', (reason) => {
     logger.info(`attempting to update waste record with id: ${id}`);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      logger.error(`invalid mongo id: ${id}`);
-      res.status(400).json({ error: 'Invalid ID' });
+      const msg = `invalid mongo id: ${id}`;
+      logger.error(msg);
+      Sentry.captureException(new Error(msg));
+      res.status(400).json({ error: msg });
       return;
     }
 
@@ -434,8 +452,10 @@ process.on('unhandledRejection', (reason) => {
       );
 
       if (!updatedWaste) {
-        logger.error(`waste record not found in db, id: ${id}`);
-        res.status(404).json({ error: 'Waste not found' });
+        const msg = `waste record not found in db, id: ${id}`;
+        logger.error(msg);
+        Sentry.captureException(new Error(msg));
+        res.status(404).json({ error: msg });
         return;
       }
 
@@ -447,6 +467,7 @@ process.on('unhandledRejection', (reason) => {
       });
     } catch (error) {
       logger.error(`error updating waste record: ${(error as Error).message}`);
+      Sentry.captureException(error);
       res.status(500).json({
         message: 'Error updating waste entry',
         error,
@@ -460,14 +481,17 @@ process.on('unhandledRejection', (reason) => {
     try {
       const result = await Waste.findByIdAndDelete(id);
       if (!result) {
-        logger.error(`waste record not found in db, id: ${id}`);
-        res.status(404).json({ message: 'Entry not found' });
+        const msg = `waste record not found in db, id: ${id}`;
+        logger.error(msg);
+        Sentry.captureException(new Error(msg));
+        res.status(404).json({ message: msg });
         return;
       }
       logger.info(`waste record deleted successfully, id: ${id}`);
       res.json({ message: 'Entry deleted successfully' });
     } catch (error) {
       logger.error(`error deleting waste record: ${(error as Error).message}`);
+      Sentry.captureException(error);
       res.status(500).json({
         message: 'Error deleting waste entry',
         error,
@@ -488,6 +512,7 @@ process.on('unhandledRejection', (reason) => {
       });
     } catch (error) {
       logger.error(`error retrieving reasons: ${(error as Error).message}`);
+      Sentry.captureException(error);
       res.status(500).json({
         message: `Error retrieving reasons: ${(error as Error).message}`,
         error,
@@ -517,7 +542,7 @@ process.on('unhandledRejection', (reason) => {
       logger.error(
         `failed to to create a new reason record: ${(error as Error).message}`,
       );
-
+      Sentry.captureException(error);
       res.status(500).json({
         message: 'Error creating reason entry',
         error,
@@ -538,6 +563,7 @@ process.on('unhandledRejection', (reason) => {
       });
     } catch (error) {
       logger.error(`error retrieving flavors: ${(error as Error).message}`);
+      Sentry.captureException(error);
       res.status(500).json({
         message: `Error retrieving flavors: ${(error as Error).message}`,
         error,
@@ -567,13 +593,15 @@ process.on('unhandledRejection', (reason) => {
       logger.error(
         `failed to to create a new flavor record: ${(error as Error).message}`,
       );
-
+      Sentry.captureException(error);
       res.status(500).json({
         message: 'Error creating flavor entry',
         error,
       });
     }
   });
+
+  Sentry.setupExpressErrorHandler(app);
 
   app.use(function (
     err: unknown,
@@ -584,10 +612,12 @@ process.on('unhandledRejection', (reason) => {
   ) {
     if ((err as UnauthorizedError).name === 'UnauthorizedError') {
       logger.error('invalid auth token');
+      Sentry.captureException(err);
       res.status(401).json({ message: 'Invalid auth token' });
       return;
     }
     logger.error(`unhandled error thrown: ${err}`);
+    Sentry.captureException(err);
     res.status(500).json({ message: 'Something went wrong' });
   });
 

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSelector } from 'react-redux';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -24,7 +25,6 @@ import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
 import { selectToken } from './redux/auth.slice';
-import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallback';
 import { selectSelectedProductType } from './redux/productType.slice';
 import { EProductType } from './types';
@@ -94,7 +94,7 @@ export function App() {
   }
 
   return (
-    <ErrorBoundary fallback={(props) => <ErrorFallback {...props} />}>
+    <Sentry.ErrorBoundary fallback={ErrorFallback}>
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="hu">
           <AppBar position="static">
@@ -152,6 +152,6 @@ export function App() {
           </Routes>
         </LocalizationProvider>
       </ThemeProvider>
-    </ErrorBoundary>
+    </Sentry.ErrorBoundary>
   );
 }

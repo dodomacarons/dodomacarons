@@ -4,11 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 const AUTO_RETRY_DELAY = 15; // in seconds;
 
 export interface ErrorFallbackProps {
-  error: Error,
-  resetErrorBoundary: () => void
+  error: unknown,
+  resetError: () => void,
 }
 
-export function ErrorFallback({error, resetErrorBoundary}: ErrorFallbackProps) {
+export function ErrorFallback({error, resetError: resetErrorBoundary}: ErrorFallbackProps) {
   const [counter, setCounter] = useState(AUTO_RETRY_DELAY);
   const [reloading, setReloading] = useState(false);
 
@@ -32,6 +32,8 @@ export function ErrorFallback({error, resetErrorBoundary}: ErrorFallbackProps) {
     return () => clearTimeout(timer);
   }, [counter, resetErrorBoundary, reload]);
 
+  const errorMessage = error instanceof Error ? error.message : new Error(String(error)).message;
+
   return (
     <Alert severity='error' sx={{ m: 2 }}>
       <Stack gap={2}>
@@ -39,7 +41,7 @@ export function ErrorFallback({error, resetErrorBoundary}: ErrorFallbackProps) {
           Nem várt hiba történt. Kérlek, próbáld újra egy kis idő elteltével.
         </Typography>
 
-        <Typography variant='caption'>{error.message}</Typography>
+        <Typography variant='caption'>{errorMessage}</Typography>
 
         <Box>
           <Button
