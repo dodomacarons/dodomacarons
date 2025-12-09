@@ -9,6 +9,8 @@ import logger from './logger';
 import { authMiddleware } from './auth.middleware';
 import { Reason, Flavor, Waste, EProductType } from './schemas';
 
+console.log(process.env.SENTRY_DSN);
+
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   sendDefaultPii: true,
@@ -600,8 +602,6 @@ process.on('unhandledRejection', (reason) => {
       });
     }
   });
-
-  Sentry.setupExpressErrorHandler(app);
 
   app.use(function (
     err: unknown,
