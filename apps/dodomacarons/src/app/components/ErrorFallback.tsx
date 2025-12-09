@@ -16,6 +16,8 @@ export function ErrorFallback({error, resetError: resetErrorBoundary}: ErrorFall
     setReloading(true);
     setTimeout(() => {
       resetErrorBoundary();
+      setReloading(false);
+      window.location.reload();
     }, Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000) // random number between 1000 and 2000
   }, [resetErrorBoundary]);
 
