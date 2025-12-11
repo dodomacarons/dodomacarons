@@ -43,16 +43,16 @@ import {
 } from '../redux/waste.api.slice';
 import { useNotification } from '../hooks/useNotification';
 
-const defaultValues: WasteFieldValues = {
-  manufacturingDate: '',
-  releaseDate: DateTime.local().minus({ day: 1 }).toFormat(DATE_STRING_FORMAT),
-  displayDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
-  flavor: '',
-  displayedQuantity: 40,
-  manufacturingWasteQuantity: 0,
-  manufacturingWasteReason: [],
-  shippingWasteQuantity: 0,
-  comment: '',
+const DEFAULT_FORM_VALUES: WasteFieldValues = {
+    manufacturingDate: '',
+    releaseDate: DateTime.local().minus({ day: 1 }).toFormat(DATE_STRING_FORMAT),
+    displayDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
+    flavor: '',
+    displayedQuantity: 0,
+    manufacturingWasteQuantity: 0,
+    manufacturingWasteReason: [],
+    shippingWasteQuantity: 0,
+    comment: '',
 };
 
 export function WasteForm({ productType }: { productType?: string }) {
@@ -66,6 +66,11 @@ export function WasteForm({ productType }: { productType?: string }) {
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
   const [addComment, setAddComment] = useState(false);
+
+  const defaultValues = useMemo(() => ({
+    ...DEFAULT_FORM_VALUES,
+    displayedQuantity: productType === EProductType.MIGNON ? 20 : 40,
+  }), [productType]);
 
   const methods = useForm<WasteFieldValues>({
     defaultValues,
@@ -260,7 +265,7 @@ export function WasteForm({ productType }: { productType?: string }) {
                     required: REQUIRED_ERROR_TEXT,
                   }}
                   onChange={(newValue) => {
-                    if (newValue && !wasteBeingEdited) {
+                    if (newValue && !wasteBeingEdited && productType !== EProductType.MIGNON) {
                       setValue('releaseDate', newValue);
                     }
                   }}
