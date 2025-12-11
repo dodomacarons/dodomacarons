@@ -21,7 +21,6 @@ import {
   initialState as initialWasteState,
 } from './waste.slice';
 import wasteApi from './waste.api.slice';
-import { authSlice } from './auth.slice';
 import { productTypeSlice } from './productType.slice';
 
 type PersistedFlavorState = Pick<FlavorState, 'recentlyUsedFlavors'>;
@@ -63,11 +62,10 @@ const persistConfig = {
   key: 'root',
   storage,
   transforms: [flavorTransform, dateFilterDateTransform],
-  blacklist: ['wasteApi', 'auth', '_persist'],
+  blacklist: ['wasteApi', '_persist'],
 };
 
 const rootReducer = combineReducers({
-  [authSlice.name]: authSlice.reducer,
   [flavorSlice.name]: flavorSlice.reducer,
   [wasteSlice.name]: wasteSlice.reducer,
   [productTypeSlice.name]: productTypeSlice.reducer,

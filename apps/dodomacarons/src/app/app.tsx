@@ -24,7 +24,6 @@ import { Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
 import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
-import { selectToken } from './redux/auth.slice';
 import { ErrorFallback } from './components/ErrorFallback';
 import { selectSelectedProductType } from './redux/productType.slice';
 import { EProductType } from './types';
@@ -32,7 +31,6 @@ import { useMemo } from 'react';
 
 export function App() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
-  const token = useSelector(selectToken);
   const navigate = useNavigate();
   const productType = useSelector(selectSelectedProductType);
 
@@ -87,10 +85,6 @@ export function App() {
         </Box>
       </Stack>
     );
-  }
-
-  if (!token) {
-    return null;
   }
 
   return (

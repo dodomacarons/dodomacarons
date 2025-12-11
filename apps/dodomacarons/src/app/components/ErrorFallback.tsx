@@ -21,18 +21,18 @@ export function ErrorFallback({error, resetError: resetErrorBoundary}: ErrorFall
     }, Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000) // random number between 1000 and 2000
   }, [resetErrorBoundary]);
 
-  useEffect(() => {
-    if (counter <= 0) {
-      reload();
-      return;
-    }
+  // useEffect(() => {
+  //   if (counter <= 0) {
+  //     reload();
+  //     return;
+  //   }
 
-    const timer = setTimeout(() => {
-      setCounter((c) => c - 1);
-    }, 1000);
+  //   const timer = setTimeout(() => {
+  //     setCounter((c) => c - 1);
+  //   }, 1000);
 
-    return () => clearTimeout(timer);
-  }, [counter, resetErrorBoundary, reload]);
+  //   return () => clearTimeout(timer);
+  // }, [counter, resetErrorBoundary, reload]);
 
   const errorMessage = error instanceof Error ? error.message : new Error(String(error)).message;
 
