@@ -37,7 +37,7 @@ process.on('unhandledRejection', (reason) => {
 
   app.use(
     cors({
-      origin: ['http://localhost:4200', 'https://dodomacarons.duckdns.org'],
+      origin: ['http://localhost:4200', 'https://dodomacarons.duckdns.org', 'https://dodomacarons.hu'],
     }),
   );
 
