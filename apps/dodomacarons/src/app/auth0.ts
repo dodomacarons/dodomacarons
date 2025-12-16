@@ -10,6 +10,7 @@ export const getAuth0Client = (): Auth0Client => {
       authorizationParams: {
         redirect_uri: window.location.origin,
         audience: import.meta.env.VITE_AUTH0_IDENTIFIER,
+        scope: 'openid profile email offline_access',
       },
       cacheLocation: 'localstorage',
       useRefreshTokens: true,
