@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'dodomacarons',
   preset: '../../jest.preset.js',
   transform: {
