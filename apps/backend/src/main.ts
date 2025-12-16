@@ -37,7 +37,11 @@ process.on('unhandledRejection', (reason) => {
 
   app.use(
     cors({
-      origin: ['http://localhost:4200', 'https://dodomacarons.duckdns.org', 'https://dodomacarons.hu'],
+      origin: [
+        'http://localhost:4200',
+        'https://dodomacarons.duckdns.org',
+        'https://dodomacarons.hu',
+      ],
     }),
   );
 
@@ -139,25 +143,33 @@ process.on('unhandledRejection', (reason) => {
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}'`);
       Sentry.captureException(error);
-      res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
+      res
+        .status(500)
+        .json({
+          message: `Error fetching waste entries: ${(error as Error).message}`,
+          error,
+        });
     }
   });
 
   app.get('/api/aggregate1', async (req, res) => {
     try {
-      const { dateFrom, dateTo, dateFilterField, productType = EProductType.MACARON } = req.query;
+      const {
+        dateFrom,
+        dateTo,
+        dateFilterField,
+        productType = EProductType.MACARON,
+      } = req.query;
 
       if (!Object.values(EProductType).includes(productType as EProductType)) {
         throw new Error('Invalid product type');
       }
 
       if (!dateFilterField) {
-        const msg = 'aggregate 1 date filter field is missing.'
+        const msg = 'aggregate 1 date filter field is missing.';
         logger.error(msg);
         Sentry.captureException(new Error(msg));
-        res
-          .status(500)
-          .json({ message: msg });
+        res.status(500).json({ message: msg });
 
         return;
       }
@@ -190,7 +202,7 @@ process.on('unhandledRejection', (reason) => {
         {
           $match: {
             [dateFilterField as string]: { $gte: start, $lte: end },
-            productType
+            productType,
           },
         },
         {
@@ -279,13 +291,22 @@ process.on('unhandledRejection', (reason) => {
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}`);
       Sentry.captureException(error);
-      res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
+      res
+        .status(500)
+        .json({
+          message: `Error fetching waste entries: ${(error as Error).message}`,
+          error,
+        });
     }
   });
 
   app.get('/api/aggregate2', async (req, res) => {
     try {
-      const { dateFrom, dateTo, productType = EProductType.MACARON } = req.query;
+      const {
+        dateFrom,
+        dateTo,
+        productType = EProductType.MACARON,
+      } = req.query;
 
       if (!Object.values(EProductType).includes(productType as EProductType)) {
         throw new Error('Invalid product type');
@@ -365,7 +386,12 @@ process.on('unhandledRejection', (reason) => {
     } catch (error) {
       logger.error(`error fetching wastes: ${(error as Error).message}`);
       Sentry.captureException(error);
-      res.status(500).json({ message: `Error fetching waste entries: ${(error as Error).message}`, error });
+      res
+        .status(500)
+        .json({
+          message: `Error fetching waste entries: ${(error as Error).message}`,
+          error,
+        });
     }
   });
 
@@ -403,7 +429,7 @@ process.on('unhandledRejection', (reason) => {
         manufacturingWasteReason,
         shippingWasteQuantity,
         comment,
-        productType
+        productType,
       });
 
       await newWaste.save();
@@ -532,7 +558,9 @@ process.on('unhandledRejection', (reason) => {
 
       await newReason.save();
 
-      logger.info(`${productType} reason record created successfully: ${newReason.name}`);
+      logger.info(
+        `${productType} reason record created successfully: ${newReason.name}`,
+      );
 
       res.status(201).json({
         message: 'Reason entry created successfully',
@@ -578,12 +606,14 @@ process.on('unhandledRejection', (reason) => {
 
       const newFlavor = new Flavor({
         name,
-        productType
+        productType,
       });
 
       await newFlavor.save();
 
-      logger.info(`${productType} flavor record created successfully: ${newFlavor.name}`);
+      logger.info(
+        `${productType} flavor record created successfully: ${newFlavor.name}`,
+      );
 
       res.status(201).json({
         message: 'Flavor entry created successfully',

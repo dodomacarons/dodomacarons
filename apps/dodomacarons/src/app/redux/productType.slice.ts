@@ -22,7 +22,7 @@ export const productTypeSlice = createSlice({
   },
 });
 
-export const selectProductTypeState = (state: RootState): ProductTypeState=>
+export const selectProductTypeState = (state: RootState): ProductTypeState =>
   state.productType;
 
 export const selectSelectedProductType = createSelector(
@@ -30,7 +30,5 @@ export const selectSelectedProductType = createSelector(
   (productType) => productType.selectedProductType,
 );
 
-export const {
-  setSelectedProductType,
-  clearSelectedProductType
-} = productTypeSlice.actions;
+export const { setSelectedProductType, clearSelectedProductType } =
+  productTypeSlice.actions;

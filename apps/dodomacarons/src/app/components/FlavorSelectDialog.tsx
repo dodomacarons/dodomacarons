@@ -298,7 +298,10 @@ export function FlavorSelectDialog({
         productType={productType}
         loading={isCreateFlavorLoading}
         onConfirm={async (flavor) => {
-          const response = await createFlavor({ name: flavor, productType: productType });
+          const response = await createFlavor({
+            name: flavor,
+            productType: productType,
+          });
           if (response.error) {
             showError(response.error);
           } else {

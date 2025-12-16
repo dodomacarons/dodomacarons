@@ -37,14 +37,21 @@ export function WasteGridList({ productType }: { productType?: string }) {
       sort: 'desc',
     },
   ]);
-  const { data, isLoading, isFetching, error: getWastesError } = useGetWastesQuery({
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error: getWastesError,
+  } = useGetWastesQuery({
     ...paginationModel,
     sortModel,
     productType: productType as EProductType,
   });
 
   const [deleteWaste, { isLoading: isDeleting }] = useDeleteWasteMutation();
-  const { data: wasteReasons } = useGetReasonsQuery({ productType: productType || '' });
+  const { data: wasteReasons } = useGetReasonsQuery({
+    productType: productType || '',
+  });
 
   const wasteList = data?.data;
 
@@ -53,7 +60,6 @@ export function WasteGridList({ productType }: { productType?: string }) {
       setRowCount(data.total || 0);
     }
   }, [data?.total]);
-
 
   useAssertRtkError(getWastesError);
 

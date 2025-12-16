@@ -22,7 +22,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 export type DateSelectProps = {
   label: ReactNode;
   id: string;
-  onChange?: (newDate: string | null) => void
+  onChange?: (newDate: string | null) => void;
 } & Omit<
   ControllerProps<
     WasteFieldValues,
@@ -43,7 +43,9 @@ export function DateSelect(props: DateSelectProps) {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
-      const newValue = dateToChange.plus({ days: 1 }).toFormat(DATE_STRING_FORMAT);
+      const newValue = dateToChange
+        .plus({ days: 1 })
+        .toFormat(DATE_STRING_FORMAT);
       field.onChange?.(newValue);
       props.onChange?.(newValue);
     },
@@ -61,7 +63,9 @@ export function DateSelect(props: DateSelectProps) {
       const dateToChange: DateTime = value
         ? DateTime.fromISO(value)
         : DateTime.local();
-      const newValue = dateToChange.minus({ days: 1 }).toFormat(DATE_STRING_FORMAT);
+      const newValue = dateToChange
+        .minus({ days: 1 })
+        .toFormat(DATE_STRING_FORMAT);
       field.onChange?.(newValue);
       props.onChange?.(newValue);
     },

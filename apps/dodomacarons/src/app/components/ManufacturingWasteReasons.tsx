@@ -24,7 +24,11 @@ import {
 } from '../redux/waste.api.slice';
 import { useNotification } from '../hooks/useNotification';
 
-export function ManufacturingWasteReasons({ productType = '' }: { productType?: string }) {
+export function ManufacturingWasteReasons({
+  productType = '',
+}: {
+  productType?: string;
+}) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const numberOfColumns = isSmallScreen ? 2 : 3;

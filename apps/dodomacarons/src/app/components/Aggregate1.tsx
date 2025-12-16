@@ -41,7 +41,12 @@ export function Aggregate1Grid({ productType = '' }: { productType?: string }) {
       sort: 'desc',
     },
   ]);
-  const { data, isLoading, isFetching, error: getAggregate1Error } = useGetAggregate1Query({
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error: getAggregate1Error,
+  } = useGetAggregate1Query({
     dateFrom,
     dateTo,
     dateFilterField,

@@ -49,7 +49,11 @@ export const wasteSchema: Schema<IWaste> = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: null },
   comment: { type: String },
-  productType: { type: String, enum: Object.values(EProductType), required: true }
+  productType: {
+    type: String,
+    enum: Object.values(EProductType),
+    required: true,
+  },
 });
 
 export const Waste = mongoose.model<IWaste>('Waste', wasteSchema);

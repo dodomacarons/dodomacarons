@@ -18,15 +18,14 @@ export function Waste() {
   const {
     isLoading: isLoadingReasons,
     isFetching: isFetchingReasons,
-    error: getReasonsError
+    error: getReasonsError,
   } = useGetReasonsQuery({ productType: productType || '' });
 
   const {
     isLoading: isLoadingFlavors,
     isFetching: isFetchingFlavors,
-    error: getFlavorsError
+    error: getFlavorsError,
   } = useGetFlavorsQuery({ productType: productType || '' });
-
 
   useAssertRtkError(getReasonsError);
   useAssertRtkError(getFlavorsError);

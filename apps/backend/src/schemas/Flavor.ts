@@ -10,7 +10,11 @@ export interface IFlavor extends Document {
 export const flavorSchema: Schema<IFlavor> = new Schema({
   name: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  productType: { type: String, enum: Object.values(EProductType), required: true }
+  productType: {
+    type: String,
+    enum: Object.values(EProductType),
+    required: true,
+  },
 });
 
 export const Flavor = mongoose.model<IFlavor>('Flavor', flavorSchema);

@@ -27,7 +27,12 @@ export function Aggregate2Grid({ productType = '' }: { productType?: string }) {
       sort: 'desc',
     },
   ]);
-  const { data, isLoading, isFetching, error: getAggregate2Error } = useGetAggregate2Query({
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error: getAggregate2Error,
+  } = useGetAggregate2Query({
     dateFrom,
     dateTo,
     ...paginationModel,
