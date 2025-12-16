@@ -1,11 +1,11 @@
 import { Avatar, Box, Menu, MenuItem } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import { useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 export function NavBarMenu() {
-  const { logout } = useAuth0();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -56,7 +56,7 @@ export function NavBarMenu() {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            logout({ logoutParams: { returnTo: window.location.origin } });
+            logout({ returnTo: window.location.origin });
           }}
         >
           Kijelentkezés

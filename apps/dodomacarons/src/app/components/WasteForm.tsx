@@ -44,15 +44,15 @@ import {
 import { useNotification } from '../hooks/useNotification';
 
 const DEFAULT_FORM_VALUES: WasteFieldValues = {
-    manufacturingDate: '',
-    releaseDate: DateTime.local().minus({ day: 1 }).toFormat(DATE_STRING_FORMAT),
-    displayDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
-    flavor: '',
-    displayedQuantity: 0,
-    manufacturingWasteQuantity: 0,
-    manufacturingWasteReason: [],
-    shippingWasteQuantity: 0,
-    comment: '',
+  manufacturingDate: '',
+  releaseDate: DateTime.local().minus({ day: 1 }).toFormat(DATE_STRING_FORMAT),
+  displayDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
+  flavor: '',
+  displayedQuantity: 0,
+  manufacturingWasteQuantity: 0,
+  manufacturingWasteReason: [],
+  shippingWasteQuantity: 0,
+  comment: '',
 };
 
 export function WasteForm({ productType }: { productType?: string }) {
@@ -62,15 +62,20 @@ export function WasteForm({ productType }: { productType?: string }) {
     useCreateWasteMutation();
   const [updateWaste, { isLoading: isUpdateWasteLoading }] =
     useUpdateWasteMutation();
-  const { data: wasteReasons } = useGetReasonsQuery({ productType: productType || '' });
+  const { data: wasteReasons } = useGetReasonsQuery({
+    productType: productType || '',
+  });
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
   const [addComment, setAddComment] = useState(false);
 
-  const defaultValues = useMemo(() => ({
-    ...DEFAULT_FORM_VALUES,
-    displayedQuantity: productType === EProductType.MIGNON ? 20 : 40,
-  }), [productType]);
+  const defaultValues = useMemo(
+    () => ({
+      ...DEFAULT_FORM_VALUES,
+      displayedQuantity: productType === EProductType.MIGNON ? 20 : 40,
+    }),
+    [productType],
+  );
 
   const methods = useForm<WasteFieldValues>({
     defaultValues,
@@ -81,7 +86,8 @@ export function WasteForm({ productType }: { productType?: string }) {
   const wasteIdBeingEdited = useSelector(selectWasteIdBeingEdited);
   const isEditingWaste = !!(wasteBeingEdited && wasteIdBeingEdited);
 
-  const { handleSubmit, formState, reset, watch, setValue, getValues } = methods;
+  const { handleSubmit, formState, reset, watch, setValue, getValues } =
+    methods;
 
   const hasValidationError = useMemo(
     () => Object.keys(formState.errors).length > 0,
@@ -99,7 +105,10 @@ export function WasteForm({ productType }: { productType?: string }) {
             ),
           },
         })
-    : await createWaste({ ...data, productType: (productType as EProductType) || EProductType.MACARON });
+      : await createWaste({
+          ...data,
+          productType: (productType as EProductType) || EProductType.MACARON,
+        });
 
     if (response.error) {
       showError(response.error);
@@ -161,7 +170,7 @@ export function WasteForm({ productType }: { productType?: string }) {
       dispatch(setSelectedFlavor(null));
       setAddComment(false);
     }
-  }, [wasteIdBeingEdited, wasteBeingEdited, reset, dispatch]);
+  }, [wasteIdBeingEdited, wasteBeingEdited, defaultValues, reset, dispatch]);
 
   const manufacturingWasteQuantity = watch('manufacturingWasteQuantity');
   const manufacturingWasteReason = watch('manufacturingWasteReason');
@@ -183,7 +192,7 @@ export function WasteForm({ productType }: { productType?: string }) {
       setAddComment(false);
       reset(defaultValues);
     }
-  }, [productType, reset, dispatch]);
+  }, [productType, defaultValues, reset, dispatch]);
 
   return (
     <FormProvider {...methods}>
@@ -265,7 +274,11 @@ export function WasteForm({ productType }: { productType?: string }) {
                     required: REQUIRED_ERROR_TEXT,
                   }}
                   onChange={(newValue) => {
-                    if (newValue && !wasteBeingEdited && productType !== EProductType.MIGNON) {
+                    if (
+                      newValue &&
+                      !wasteBeingEdited &&
+                      productType !== EProductType.MIGNON
+                    ) {
                       setValue('releaseDate', newValue);
                     }
                   }}

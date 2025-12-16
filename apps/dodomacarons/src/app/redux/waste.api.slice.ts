@@ -7,7 +7,7 @@ import {
   WasteFieldValues,
 } from '../types';
 import { GridSortModel } from '@mui/x-data-grid';
-import { getAccessToken } from '../authTokenProvider';
+import { getAuth0Client } from '../auth0';
 
 export interface WastesApiResponse {
   message: string;
@@ -26,7 +26,7 @@ const wasteApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_WASTE_API_BASE_URL,
     prepareHeaders: async (headers) => {
-      const token = await getAccessToken();
+      const token = await getAuth0Client().getTokenSilently();
       headers.set('Authorization', `Bearer ${token}`);
       return headers;
     },
@@ -166,17 +166,20 @@ const wasteApi = createApi({
       invalidatesTags: ['Waste'],
     }),
 
-    getReasons: builder.query<{ _id: string; name: string }[], { productType: string }>({
+    getReasons: builder.query<
+      { _id: string; name: string }[],
+      { productType: string }
+    >({
       query: ({ productType }) => `reason?productType=${productType}`,
       transformResponse: (response: {
-        data: { _id: string; name: string, productType: EProductType }[];
+        data: { _id: string; name: string; productType: EProductType }[];
       }) => response.data,
       providesTags: ['Reason'],
     }),
 
     createReason: builder.mutation<
       { _id: string; name: string; createdAt: string },
-      { name: string, productType: string }
+      { name: string; productType: string }
     >({
       query: (newReason) => ({
         url: 'reason',
@@ -184,7 +187,12 @@ const wasteApi = createApi({
         body: newReason,
       }),
       transformResponse: (response: {
-        data: { _id: string; name: string; createdAt: string, productType: EProductType };
+        data: {
+          _id: string;
+          name: string;
+          createdAt: string;
+          productType: EProductType;
+        };
       }) => response.data,
       onQueryStarted: async ({ productType }, { dispatch, queryFulfilled }) => {
         try {
@@ -205,17 +213,20 @@ const wasteApi = createApi({
       },
     }),
 
-    getFlavors: builder.query<{ _id: string; name: string }[], { productType: string }>({
+    getFlavors: builder.query<
+      { _id: string; name: string }[],
+      { productType: string }
+    >({
       query: ({ productType }) => `flavor?productType=${productType}`,
       transformResponse: (response: {
-        data: { _id: string; name: string, productType: EProductType }[];
+        data: { _id: string; name: string; productType: EProductType }[];
       }) => response.data,
       providesTags: ['Flavor'],
     }),
 
     createFlavor: builder.mutation<
       { _id: string; name: string; createdAt: string },
-      { name: string, productType: string }
+      { name: string; productType: string }
     >({
       query: (newFlavor) => ({
         url: 'flavor',
@@ -223,7 +234,12 @@ const wasteApi = createApi({
         body: newFlavor,
       }),
       transformResponse: (response: {
-        data: { _id: string; name: string; createdAt: string, productType: EProductType };
+        data: {
+          _id: string;
+          name: string;
+          createdAt: string;
+          productType: EProductType;
+        };
       }) => response.data,
       onQueryStarted: async ({ productType }, { dispatch, queryFulfilled }) => {
         try {

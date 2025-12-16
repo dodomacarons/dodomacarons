@@ -31,29 +31,64 @@ export function getRedGradient(percentage: number) {
   return `hsl(0, 100%, ${lightness}%)`;
 }
 
-export function isMongoDuplicateKeyError(error: any) {
-  if (typeof error?.data?.error?.errorResponse?.errmsg === 'string') {
-    if (
-      error.data.error.errorResponse.errmsg.includes(
-        'E11000 duplicate key error',
-      )
-    ) {
-      return true;
-    }
+interface MongoErrorResponse {
+  data: {
+    error: {
+      errorResponse: {
+        errmsg: string;
+      };
+    };
+  };
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isMongoErrorResponse(error: unknown): error is MongoErrorResponse {
+  return (
+    isObject(error) &&
+    isObject(error.data) &&
+    isObject(error.data.error) &&
+    isObject(error.data.error.errorResponse) &&
+    typeof error.data.error.errorResponse.errmsg === 'string'
+  );
+}
+
+export function isMongoDuplicateKeyError(
+  error: unknown,
+): error is MongoErrorResponse {
+  return (
+    isMongoErrorResponse(error) &&
+    error.data.error.errorResponse.errmsg.includes('E11000 duplicate key error')
+  );
+}
+
+export function isFetchBaseQueryError(
+  error?: FetchBaseQueryError | SerializedError,
+): error is FetchBaseQueryError {
+  return (
+    !!error &&
+    'status' in error &&
+    ('data' in error || ('error' in error && !error.data))
+  );
+}
+
+function getErrorMessage(data: unknown): string | undefined {
+  if (isObject(data) && typeof data.message === 'string') {
+    return data.message;
   }
-  return false;
+  return undefined;
 }
 
-export function isFetchBaseQueryError(error?: FetchBaseQueryError | SerializedError): error is FetchBaseQueryError {
-  return !!error && 'status' in error && ('data' in error || ('error' in error && !error.data));
-}
-
-export function assertRtkQueryError(error?: FetchBaseQueryError | SerializedError) {
+export function assertRtkQueryError(
+  error?: FetchBaseQueryError | SerializedError,
+) {
   if (isFetchBaseQueryError(error)) {
     if (typeof error.status !== 'number') {
       throw new Error(`${error.status}: ${error.error}`);
     } else {
-      throw new Error(`${error.status}: ${(error.data as any)?.message}`);
+      throw new Error(`${error.status}: ${getErrorMessage(error.data)}`);
     }
   }
 }
