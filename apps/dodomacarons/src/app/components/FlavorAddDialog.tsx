@@ -10,23 +10,26 @@ import {
   TextField,
 } from '@mui/material';
 import { useGetFlavorsQuery } from '../redux/waste.api.slice';
+import { EProductType } from '../types';
+
+export interface FlavorAddDialogProps {
+  productType: EProductType;
+  value?: string;
+  loading?: boolean;
+  onConfirm: (reason: string) => void;
+}
 
 export function FlavorAddDialog({
   onConfirm,
   loading,
   value,
-  productType = '',
+  productType,
   ...props
-}: DialogProps & {
-  value?: string;
-  loading?: boolean;
-  productType?: string;
-  onConfirm: (reason: string) => void;
-}) {
+}: DialogProps & FlavorAddDialogProps) {
   const [flavor, setFlavor] = useState(value || '');
   const [doesExist, setDoesExist] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: flavors } = useGetFlavorsQuery({ productType: productType });
+  const { data: flavors } = useGetFlavorsQuery({ productType });
 
   const setFocus = useCallback(() => {
     setTimeout(() => {

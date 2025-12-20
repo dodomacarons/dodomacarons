@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { GridSortModel } from '@mui/x-data-grid';
 import { useGetAggregate2Query } from '../redux/waste.api.slice';
 import { Box, FormLabel, Grid, Typography } from '@mui/material';
-import { Aggregate2ApiResponse } from '../types';
+import { Aggregate2ApiResponse, EProductType } from '../types';
 import { DATE_STRING_FORMAT } from '../misc';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
@@ -14,7 +14,11 @@ const defaultDateFrom = DateTime.local()
   .toFormat(DATE_STRING_FORMAT);
 const defaultDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
 
-export function Aggregate2Grid({ productType = '' }: { productType?: string }) {
+export interface Aggregate2GridProps {
+  productType: EProductType;
+}
+
+export function Aggregate2Grid({ productType }: Aggregate2GridProps) {
   const [dateFrom, setDateFrom] = useState(defaultDateFrom);
   const [dateTo, setDateTo] = useState(defaultDateTo);
   const [paginationModel, setPaginationModel] = useState({

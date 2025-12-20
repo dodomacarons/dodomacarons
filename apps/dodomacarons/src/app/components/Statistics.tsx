@@ -5,8 +5,8 @@ import Box from '@mui/material/Box';
 import { Aggregate1Grid } from './Aggregate1';
 import { Aggregate2Grid } from './Aggregate2';
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
 import { setSelectedProductType } from '../redux/productType.slice';
+import { EProductType } from '../types';
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -37,13 +37,16 @@ function a11yProps(index: number) {
   };
 }
 
-export function Statistics() {
+export interface StatisticsProps {
+  productType: EProductType;
+}
+
+export function Statistics({ productType }: StatisticsProps) {
   const dispatch = useDispatch();
-  const { productType } = useParams();
   const [value, setValue] = useState(0);
 
   useEffect(() => {
-    dispatch(setSelectedProductType(productType || null));
+    dispatch(setSelectedProductType(productType));
   }, [productType, dispatch]);
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {

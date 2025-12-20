@@ -10,17 +10,20 @@ import {
   TextField,
 } from '@mui/material';
 import { useGetReasonsQuery } from '../redux/waste.api.slice';
+import { EProductType } from '../types';
+
+export interface ManufacturingWasteReasonAddDialogProps {
+  productType: EProductType;
+  onConfirm: (reason: string) => void;
+  loading?: boolean;
+}
 
 export function ManufacturingWasteReasonAddDialog({
   onConfirm,
   loading,
-  productType = '',
+  productType,
   ...props
-}: DialogProps & {
-  loading?: boolean;
-  productType?: string;
-  onConfirm: (reason: string) => void;
-}) {
+}: DialogProps & ManufacturingWasteReasonAddDialogProps) {
   const [reason, setReason] = useState('');
   const [doesExist, setDoesExist] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);

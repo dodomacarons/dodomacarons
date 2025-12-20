@@ -20,7 +20,11 @@ import {
 import { useNotification } from '../hooks/useNotification';
 import { useAssertRtkError } from '../hooks/useAssertRtkError';
 
-export function WasteGridList({ productType }: { productType?: string }) {
+export interface WasteGridListProps {
+  productType: EProductType;
+}
+
+export function WasteGridList({ productType }: WasteGridListProps) {
   const dispatch = useDispatch();
   const [rowCount, setRowCount] = useState(0);
   const { showError, showSuccess } = useNotification();
@@ -45,12 +49,12 @@ export function WasteGridList({ productType }: { productType?: string }) {
   } = useGetWastesQuery({
     ...paginationModel,
     sortModel,
-    productType: productType as EProductType,
+    productType,
   });
 
   const [deleteWaste, { isLoading: isDeleting }] = useDeleteWasteMutation();
   const { data: wasteReasons } = useGetReasonsQuery({
-    productType: productType || '',
+    productType,
   });
 
   const wasteList = data?.data;

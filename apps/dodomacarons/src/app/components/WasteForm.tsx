@@ -55,7 +55,11 @@ const DEFAULT_FORM_VALUES: WasteFieldValues = {
   comment: '',
 };
 
-export function WasteForm({ productType }: { productType?: string }) {
+export interface WasteFormProps {
+  productType: EProductType;
+}
+
+export function WasteForm({ productType }: WasteFormProps) {
   const { showError, showSuccess } = useNotification();
   const dispatch = useDispatch();
   const [createWaste, { isLoading: isCreateWasteLoading }] =
@@ -63,7 +67,7 @@ export function WasteForm({ productType }: { productType?: string }) {
   const [updateWaste, { isLoading: isUpdateWasteLoading }] =
     useUpdateWasteMutation();
   const { data: wasteReasons } = useGetReasonsQuery({
-    productType: productType || '',
+    productType,
   });
 
   const [flavorDialogOpened, setFlavorDialogOpened] = useState(false);
@@ -107,7 +111,7 @@ export function WasteForm({ productType }: { productType?: string }) {
         })
       : await createWaste({
           ...data,
-          productType: (productType as EProductType) || EProductType.MACARON,
+          productType,
         });
 
     if (response.error) {

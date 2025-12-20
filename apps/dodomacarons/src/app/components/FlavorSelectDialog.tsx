@@ -49,7 +49,7 @@ import { useNotification } from '../hooks/useNotification';
 
 export type FlavorSelectDialogProps = Omit<DialogProps, 'onClose'> & {
   onClose?: () => void;
-  productType?: string;
+  productType: EProductType;
 };
 
 const Transition = forwardRef(function Transition(
@@ -63,7 +63,7 @@ const Transition = forwardRef(function Transition(
 
 export function FlavorSelectDialog({
   open,
-  productType = '',
+  productType,
   ...props
 }: FlavorSelectDialogProps) {
   const dispatch = useDispatch();
@@ -125,7 +125,7 @@ export function FlavorSelectDialog({
         displayDate: DateTime.local().toFormat(DATE_STRING_FORMAT),
         page: 0,
         pageSize: 1,
-        productType: productType as EProductType,
+        productType,
       });
 
       if (!response.error && response.data) {

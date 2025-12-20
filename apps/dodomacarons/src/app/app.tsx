@@ -26,6 +26,7 @@ import { Waste } from './components/Waste';
 import { Statistics } from './components/Statistics';
 import { NavBarMenu } from './components/NavBarMenu';
 import { ErrorFallback } from './components/ErrorFallback';
+import { NotFound } from './components/NotFound';
 import { selectSelectedProductType } from './redux/productType.slice';
 import { EProductType } from './types';
 import { isAuth0Redirecting } from './utils/auth';
@@ -166,7 +167,14 @@ export function App() {
                 />
               }
             />
-            <Route path="/:productType" element={<Waste />} />
+            <Route
+              path="/macaron"
+              element={<Waste productType={EProductType.MACARON} />}
+            />
+            <Route
+              path="/mignon"
+              element={<Waste productType={EProductType.MIGNON} />}
+            />
             <Route
               path="/statistics"
               element={
@@ -176,7 +184,15 @@ export function App() {
                 />
               }
             />
-            <Route path="/statistics/:productType" element={<Statistics />} />
+            <Route
+              path="/statistics/macaron"
+              element={<Statistics productType={EProductType.MACARON} />}
+            />
+            <Route
+              path="/statistics/mignon"
+              element={<Statistics productType={EProductType.MIGNON} />}
+            />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Sentry.ErrorBoundary>
       </LocalizationProvider>

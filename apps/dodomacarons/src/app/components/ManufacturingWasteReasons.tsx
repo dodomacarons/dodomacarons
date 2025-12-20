@@ -17,18 +17,20 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { ManufacturingWasteReasonAddDialog } from './ManufacturingWasteReasonAddDialog';
-import { WasteFieldValues } from '../types';
+import { EProductType, WasteFieldValues } from '../types';
 import {
   useCreateReasonMutation,
   useGetReasonsQuery,
 } from '../redux/waste.api.slice';
 import { useNotification } from '../hooks/useNotification';
 
+export interface ManufacturingWasteReasonsProps {
+  productType: EProductType;
+}
+
 export function ManufacturingWasteReasons({
-  productType = '',
-}: {
-  productType?: string;
-}) {
+  productType,
+}: ManufacturingWasteReasonsProps) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const numberOfColumns = isSmallScreen ? 2 : 3;

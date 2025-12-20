@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { GridSortModel } from '@mui/x-data-grid';
 import { useGetAggregate1Query } from '../redux/waste.api.slice';
 import { Box, FormLabel, Grid, Stack, Switch, Typography } from '@mui/material';
-import { Aggregate1ApiResponse } from '../types';
+import { Aggregate1ApiResponse, EProductType } from '../types';
 import { DATE_STRING_FORMAT, getRedGradient } from '../misc';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
@@ -19,7 +19,11 @@ const defaultDateFrom = DateTime.local()
   .toFormat(DATE_STRING_FORMAT);
 const defaultDateTo = DateTime.local().toFormat(DATE_STRING_FORMAT);
 
-export function Aggregate1Grid({ productType = '' }: { productType?: string }) {
+export interface Aggregate1GridProps {
+  productType: EProductType;
+}
+
+export function Aggregate1Grid({ productType }: Aggregate1GridProps) {
   const dispatch = useDispatch();
   const [dateFrom, setDateFrom] = useState(defaultDateFrom);
   const [dateTo, setDateTo] = useState(defaultDateTo);

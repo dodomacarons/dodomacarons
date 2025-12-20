@@ -7,31 +7,34 @@ import {
 } from '../redux/waste.api.slice';
 import { useAssertRtkError } from '../hooks/useAssertRtkError';
 
-import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setSelectedProductType } from '../redux/productType.slice';
+import { EProductType } from '../types';
 
-export function Waste() {
+export interface WasteProps {
+  productType: EProductType;
+}
+
+export function Waste({ productType }: WasteProps) {
   const dispatch = useDispatch();
-  const { productType } = useParams();
   const {
     isLoading: isLoadingReasons,
     isFetching: isFetchingReasons,
     error: getReasonsError,
-  } = useGetReasonsQuery({ productType: productType || '' });
+  } = useGetReasonsQuery({ productType });
 
   const {
     isLoading: isLoadingFlavors,
     isFetching: isFetchingFlavors,
     error: getFlavorsError,
-  } = useGetFlavorsQuery({ productType: productType || '' });
+  } = useGetFlavorsQuery({ productType });
 
   useAssertRtkError(getReasonsError);
   useAssertRtkError(getFlavorsError);
 
   useEffect(() => {
-    dispatch(setSelectedProductType(productType || null));
+    dispatch(setSelectedProductType(productType));
   }, [productType, dispatch]);
 
   const hasError = !!(getReasonsError || getFlavorsError);

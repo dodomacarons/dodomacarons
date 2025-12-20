@@ -67,7 +67,7 @@ const wasteApi = createApi({
         dateFrom: string;
         dateTo: string;
         dateFilterField: 'manufacturingDate' | 'displayDate';
-        productType: string;
+        productType: EProductType;
         page: number;
         pageSize: number;
         sortModel?: GridSortModel;
@@ -110,7 +110,7 @@ const wasteApi = createApi({
       {
         dateFrom: string;
         dateTo: string;
-        productType: string;
+        productType: EProductType;
         page: number;
         pageSize: number;
         sortModel?: GridSortModel;
@@ -168,7 +168,7 @@ const wasteApi = createApi({
 
     getReasons: builder.query<
       { _id: string; name: string }[],
-      { productType: string }
+      { productType: EProductType }
     >({
       query: ({ productType }) => `reason?productType=${productType}`,
       transformResponse: (response: {
@@ -179,7 +179,7 @@ const wasteApi = createApi({
 
     createReason: builder.mutation<
       { _id: string; name: string; createdAt: string },
-      { name: string; productType: string }
+      { name: string; productType: EProductType }
     >({
       query: (newReason) => ({
         url: 'reason',
@@ -215,7 +215,7 @@ const wasteApi = createApi({
 
     getFlavors: builder.query<
       { _id: string; name: string }[],
-      { productType: string }
+      { productType: EProductType }
     >({
       query: ({ productType }) => `flavor?productType=${productType}`,
       transformResponse: (response: {
@@ -226,7 +226,7 @@ const wasteApi = createApi({
 
     createFlavor: builder.mutation<
       { _id: string; name: string; createdAt: string },
-      { name: string; productType: string }
+      { name: string; productType: EProductType }
     >({
       query: (newFlavor) => ({
         url: 'flavor',

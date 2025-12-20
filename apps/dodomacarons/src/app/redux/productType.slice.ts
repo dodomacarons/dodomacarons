@@ -1,23 +1,21 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
+import { EProductType } from '../types';
 
 export interface ProductTypeState {
-  selectedProductType: string | null;
+  selectedProductType: EProductType;
 }
 
 export const initialState: ProductTypeState = {
-  selectedProductType: null,
+  selectedProductType: EProductType.MACARON,
 };
 
 export const productTypeSlice = createSlice({
   name: 'productType',
   initialState,
   reducers: {
-    setSelectedProductType(state, action: PayloadAction<string | null>) {
+    setSelectedProductType(state, action: PayloadAction<EProductType>) {
       state.selectedProductType = action.payload;
-    },
-    clearSelectedProductType(state) {
-      state.selectedProductType = null;
     },
   },
 });
@@ -30,5 +28,4 @@ export const selectSelectedProductType = createSelector(
   (productType) => productType.selectedProductType,
 );
 
-export const { setSelectedProductType, clearSelectedProductType } =
-  productTypeSlice.actions;
+export const { setSelectedProductType } = productTypeSlice.actions;
