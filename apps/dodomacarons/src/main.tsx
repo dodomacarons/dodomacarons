@@ -10,10 +10,13 @@ import { AuthProvider } from './app/hooks/useAuth';
 import { store } from './app/redux';
 import { App } from './app/app';
 
-Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
-  sendDefaultPii: true,
-});
+if (import.meta.env.MODE !== 'development') {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    sendDefaultPii: true,
+  });
+  console.log('Sentry initialized successfully');
+}
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
